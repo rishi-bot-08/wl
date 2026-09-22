@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WasteLoop — Waste out. Value in.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16241C; --moss-deep:#243F2C; --paper:#F5F1E6; --paper-dim:#ECE6D6;
+  --moss:#3D6B4A; --moss-light:#5C8A68; --marigold:#E7A233; --marigold-deep:#C6821B;
+  --clay:#8B5A2B; --signal:#C1443A; --sky:#2A6B85; --mist:#D9E1D4;
+  --line: rgba(22,36,28,0.14); --line-on-dark: rgba(245,241,230,0.18);
+  --font-display:'IBM Plex Serif', serif; --font-body:'IBM Plex Sans', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  --radius: 10px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-body); line-height:1.5; -webkit-font-smoothing:antialiased;}
+h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0; letter-spacing:-0.01em;}
+p{margin:0;} a{color:inherit;} button{font-family:var(--font-body); cursor:pointer;}
+:focus-visible{outline:2.5px solid var(--marigold); outline-offset:2px;}
+.mono{font-family:var(--font-mono);}
+.wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+
+nav.top{position:sticky; top:0; z-index:50; background:rgba(245,241,230,0.94); backdrop-filter: blur(8px); border-bottom:1px solid var(--line);}
+nav.top .inner{max-width:1180px; margin:0 auto; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:64px; gap:16px;}
+.brand{display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:600; font-size:1.1rem; flex-shrink:0;}
+.brand svg{width:24px; height:24px;}
+.tabs{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; flex:1;}
+.tabs::-webkit-scrollbar{display:none;}
+.tabs button{background:none; border:none; padding:9px 12px; font-size:0.86rem; color:var(--ink); font-weight:500; border-bottom:2px solid transparent; opacity:0.65; transition:opacity .15s, border-color .15s; white-space:nowrap; flex-shrink:0;}
+.tabs button:hover{opacity:1;}
+.tabs button.active{opacity:1; border-bottom-color:var(--marigold); color:var(--moss);}
+.nav-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+.lang-select{display:flex; gap:5px; align-items:center; font-size:0.75rem;}
+.lang-select select{background:var(--paper-dim); border:1px solid var(--line); border-radius:6px; padding:5px 6px; font-family:var(--font-mono); font-size:0.72rem; color:var(--ink);}
+.points-pill{display:flex; align-items:center; gap:6px; background:var(--ink); color:var(--paper); padding:7px 12px; border-radius:999px; font-family:var(--font-mono); font-size:0.78rem; white-space:nowrap;}
+.points-pill .dot{width:7px; height:7px; border-radius:50%; background:var(--marigold);}
+
+section{display:none;} section.active{display:block;}
+
+.hero{background:radial-gradient(120% 140% at 78% -10%, #2F5138 0%, var(--moss-deep) 45%, var(--ink) 100%); color:var(--paper); padding:70px 0 84px; position:relative; overflow:hidden;}
+.hero .wrap{display:grid; grid-template-columns:1.1fr 0.9fr; gap:44px; align-items:center;}
+.eyebrow{font-family:var(--font-mono); font-size:0.76rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--marigold); margin-bottom:16px; display:block;}
+.hero h1{font-size:clamp(2.1rem, 4vw, 3.2rem); line-height:1.08; margin-bottom:18px;}
+.hero h1 em{font-style:italic; color:var(--marigold);}
+.hero p.lead{font-size:1.04rem; color:rgba(245,241,230,0.82); max-width:46ch; margin-bottom:28px;}
+.cta-row{display:flex; gap:12px; flex-wrap:wrap;}
+.btn{display:inline-flex; align-items:center; gap:8px; border-radius:8px; padding:12px 20px; font-weight:600; font-size:0.9rem; border:1.5px solid transparent; transition:transform .12s, background .15s;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--marigold); color:var(--ink);} .btn-primary:hover{background:#F2B04E;}
+.btn-ghost{background:transparent; color:var(--paper); border-color:var(--line-on-dark);} .btn-ghost:hover{border-color:var(--paper);}
+.btn-dark{background:var(--ink); color:var(--paper);} .btn-dark:hover{background:var(--moss-deep);}
+.btn-sm{padding:8px 14px; font-size:0.8rem; border-radius:7px;}
+
+.loop-wrap{position:relative; display:flex; align-items:center; justify-content:center;}
+.loop-ring{animation:spin 40s linear infinite;} @media (prefers-reduced-motion: reduce){ .loop-ring{animation:none;} }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.loop-node text{font-family:var(--font-mono); font-size:9.5px; fill:var(--paper);}
+.loop-center{font-family:var(--font-display); font-size:15px; font-weight:600; fill:var(--paper);}
+
+.band{padding:66px 0;} .band-dim{background:var(--paper-dim);}
+.section-head{max-width:680px; margin-bottom:38px;}
+.section-head .eyebrow{color:var(--clay);}
+.section-head h2{font-size:clamp(1.4rem,2.4vw,1.95rem); margin-bottom:10px;}
+.section-head p{color:rgba(22,36,28,0.68); font-size:0.98rem;}
+
+.directory-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:12px;}
+.dcard{border:1px solid var(--line); border-radius:var(--radius); padding:18px 15px; background:var(--paper); text-align:left; transition:border-color .15s, transform .12s;}
+.dcard:hover{border-color:var(--moss); transform:translateY(-2px);}
+.dcard .ic{font-size:1.5rem; margin-bottom:10px; display:block;}
+.dcard h3{font-size:0.86rem; margin-bottom:5px;}
+.dcard p{font-size:0.76rem; color:rgba(22,36,28,0.6);}
+
+.stage-loop{display:grid; grid-template-columns:repeat(6,1fr); gap:14px;}
+.stage{border:1px solid var(--line); border-radius:var(--radius); padding:18px 16px; background:var(--paper);}
+.stage .arc{font-family:var(--font-mono); font-size:0.7rem; color:var(--moss); margin-bottom:10px; display:block;}
+.stage h3{font-size:0.92rem; margin-bottom:6px;} .stage p{font-size:0.8rem; color:rgba(22,36,28,0.66);}
+
+.cards3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+.cards2{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+.card{border:1px solid var(--line); border-radius:var(--radius); padding:22px; background:var(--paper);}
+.card .tag{font-family:var(--font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; padding:3px 9px; border-radius:5px; display:inline-block; margin-bottom:12px;}
+.tag-organic{background:#E7EFE3; color:var(--moss);} .tag-recycle{background:#DCEAF0; color:var(--sky);} .tag-ewaste{background:#F1E3D9; color:var(--clay);}
+.card h3{font-size:1.02rem; margin-bottom:8px;} .card p{color:rgba(22,36,28,0.66); font-size:0.88rem;}
+
+footer{background:var(--ink); color:rgba(245,241,230,0.6); padding:36px 0; font-size:0.82rem;}
+footer .wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+
+.page-head{padding:48px 0 30px; border-bottom:1px solid var(--line);}
+.page-head .eyebrow{color:var(--moss);}
+.page-head h2{font-size:clamp(1.5rem,2.8vw,2.05rem);}
+.page-head p{color:rgba(22,36,28,0.65); margin-top:9px; max-width:60ch;}
+
+.flow-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; padding:40px 0 74px;}
+.field-group{margin-bottom:16px;}
+label{display:block; font-size:0.8rem; font-weight:600; margin-bottom:6px; color:var(--ink);}
+select, textarea, input[type=text]{width:100%; border:1.5px solid var(--line); border-radius:8px; padding:11px 12px; font-family:var(--font-body); font-size:0.92rem; background:var(--paper); color:var(--ink);}
+textarea{resize:vertical; min-height:82px;}
+.mic-row{display:flex; gap:10px; align-items:center; margin-top:8px; flex-wrap:wrap;}
+.mic-btn{display:flex; align-items:center; gap:8px; background:var(--paper-dim); border:1.5px solid var(--line); border-radius:8px; padding:9px 14px; font-size:0.82rem; font-weight:600; color:var(--moss);}
+.mic-btn.listening{background:var(--signal); color:var(--paper); border-color:var(--signal);}
+.hint{font-size:0.76rem; color:rgba(22,36,28,0.5); margin-top:6px;}
+
+.result-panel{border:1.5px dashed var(--line); border-radius:var(--radius); padding:24px; min-height:320px; background:var(--paper-dim);}
+.result-panel.idle{display:flex; align-items:center; justify-content:center; text-align:center; color:rgba(22,36,28,0.45); font-size:0.9rem;}
+.thinking{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:270px; text-align:center;}
+.spinner{width:32px; height:32px; border-radius:50%; border:3px solid var(--mist); border-top-color:var(--moss); animation:sp 0.9s linear infinite;}
+@keyframes sp{ to{transform:rotate(360deg);} }
+.thinking p{font-family:var(--font-mono); font-size:0.8rem; color:rgba(22,36,28,0.65);}
+.result-card{animation:fadein .3s ease;} @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+.result-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+.result-cat{font-family:var(--font-display); font-size:1.22rem; font-weight:600;}
+.points-badge{background:var(--marigold); color:var(--ink); font-family:var(--font-mono); font-weight:600; font-size:0.82rem; padding:6px 11px; border-radius:999px;}
+.result-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:0.86rem;}
+.result-row span:first-child{color:rgba(22,36,28,0.6);} .result-row span:last-child{font-weight:600; text-align:right;}
+.track-id{font-family:var(--font-mono); background:var(--ink); color:var(--paper); padding:10px 13px; border-radius:8px; font-size:0.8rem; margin-top:14px; display:inline-block;}
+
+.factor-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+.factor{border:1px solid var(--line); border-radius:9px; padding:14px; background:var(--paper); font-size:0.82rem; display:flex; align-items:center; gap:10px;}
+.factor .n{font-family:var(--font-mono); color:var(--marigold-deep); font-weight:600;}
+.flow{display:flex; align-items:center; gap:0; flex-wrap:wrap; margin-bottom:16px;}
+.flow-box{border:1px solid var(--line); border-radius:9px; padding:14px 16px; background:var(--paper); font-size:0.84rem; font-weight:600; text-align:center; min-width:130px;}
+.flow-box.hl{background:var(--moss); color:var(--paper); border-color:var(--moss);}
+.flow-arrow{padding:0 12px; color:var(--moss); font-size:1.1rem;}
+.market-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+.market-card{border:1px solid var(--line); border-radius:var(--radius); padding:18px; background:var(--paper); text-align:center;}
+.market-card .ic{font-size:1.6rem; display:block; margin-bottom:8px;}
+.market-card h3{font-size:0.92rem; margin-bottom:4px;} .market-card p{font-size:0.78rem; color:rgba(22,36,28,0.6);}
+
+.voice-grid{display:grid; grid-template-columns:0.9fr 1.1fr; gap:32px; padding:40px 0 74px; align-items:start;}
+.chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+.chip{border:1.5px solid var(--line); background:var(--paper); border-radius:999px; padding:8px 14px; font-size:0.8rem; color:var(--moss); font-weight:600;}
+.chip:hover{border-color:var(--moss); background:var(--paper-dim);}
+.chat-panel{border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); display:flex; flex-direction:column; height:460px;}
+.chat-log{flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px;}
+.msg{max-width:80%; padding:11px 14px; border-radius:12px; font-size:0.88rem; line-height:1.45;}
+.msg.bot{background:var(--paper-dim); align-self:flex-start; border-bottom-left-radius:3px;}
+.msg.user{background:var(--moss); color:var(--paper); align-self:flex-end; border-bottom-right-radius:3px;}
+.chat-input-row{display:flex; gap:8px; padding:14px; border-top:1px solid var(--line);}
+.chat-input-row input{flex:1; border:1.5px solid var(--line); border-radius:8px; padding:10px 12px; font-size:0.88rem; background:var(--paper-dim);}
+.cap-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+.cap-list li{display:flex; gap:10px; align-items:flex-start; font-size:0.86rem; padding:10px 0; border-bottom:1px solid var(--line);}
+.cap-list li:last-child{border-bottom:none;}
+.cap-list .ic{flex-shrink:0;}
+
+.balance-bar{display:flex; justify-content:space-between; align-items:center; background:var(--moss-deep); color:var(--paper); border-radius:var(--radius); padding:20px 24px; margin:0 0 30px;}
+.balance-bar .big{font-family:var(--font-mono); font-size:1.6rem; font-weight:600;}
+.balance-bar .lbl{font-size:0.76rem; text-transform:uppercase; letter-spacing:0.05em; opacity:0.75; font-family:var(--font-mono);}
+.reward-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:56px;}
+.reward-card{border:1px solid var(--line); border-radius:var(--radius); padding:18px; background:var(--paper); display:flex; flex-direction:column; gap:9px;}
+.reward-icon{width:42px; height:42px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; background:var(--paper-dim);}
+.reward-card h3{font-size:0.95rem;} .brand-tag{font-family:var(--font-mono); font-size:0.68rem; color:var(--clay);}
+.reward-cost{font-family:var(--font-mono); font-weight:600; margin-top:auto;}
+.redeem-btn{width:100%; padding:10px; border-radius:7px; border:1.5px solid var(--moss); background:transparent; color:var(--moss); font-weight:600; font-size:0.83rem;}
+.redeem-btn:hover:not(:disabled){background:var(--moss); color:var(--paper);}
+.redeem-btn:disabled{opacity:0.4; cursor:not-allowed; border-color:var(--line);}
+.partner-strip{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:20px;}
+.partner-chip{border:1px solid var(--line); border-radius:8px; padding:12px 8px; text-align:center; font-size:0.76rem; font-weight:600; background:var(--paper);}
+.challenge-banner{display:flex; justify-content:space-between; align-items:center; background:linear-gradient(90deg, var(--clay), var(--marigold-deep)); color:var(--paper); border-radius:var(--radius); padding:20px 24px; margin-bottom:56px; flex-wrap:wrap; gap:14px;}
+.challenge-banner h3{font-size:1.05rem; margin-bottom:4px;}
+.challenge-banner p{font-size:0.84rem; opacity:0.92;}
+.tier-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:56px;}
+.tier-card{border:1.5px solid var(--line); border-radius:var(--radius); padding:20px; background:var(--paper); text-align:center;}
+.tier-card.active{border-color:var(--marigold); background:#FBF3E2;}
+.tier-card .ic{font-size:1.6rem;} .tier-card h3{font-size:0.98rem; margin:8px 0 4px;}
+.tier-card p{font-size:0.78rem; color:rgba(22,36,28,0.6);}
+.comp-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+.comp-card{border:1px solid var(--line); border-radius:var(--radius); padding:20px; background:var(--paper);}
+.comp-card h3{font-size:0.98rem; margin-bottom:14px;}
+.comp-row{display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:6px;}
+.bar-bg{height:8px; background:var(--paper-dim); border-radius:5px; overflow:hidden; margin-bottom:14px;}
+.bar-fill{height:100%; background:var(--moss);}
+.bar-fill.b{background:var(--marigold);}
+
+.watch-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px; padding:40px 0 74px;}
+.file-btn{border:1.5px dashed var(--line); border-radius:8px; padding:15px; text-align:center; font-size:0.84rem; color:rgba(22,36,28,0.55); background:var(--paper-dim);}
+.status-track{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;}
+.status-track li{position:relative; padding:0 0 24px 28px; font-size:0.86rem;}
+.status-track li::before{content:''; position:absolute; left:0; top:2px; width:14px; height:14px; border-radius:50%; background:var(--paper-dim); border:2px solid var(--line);}
+.status-track li::after{content:''; position:absolute; left:6px; top:16px; width:2px; height:calc(100% - 10px); background:var(--line);}
+.status-track li:last-child::after{display:none;}
+.status-track li.done::before{background:var(--moss); border-color:var(--moss);}
+.status-track li.current::before{background:var(--marigold); border-color:var(--marigold);}
+.status-track li .t{font-weight:600;} .status-track li .d{color:rgba(22,36,28,0.55); font-size:0.78rem; margin-top:2px;}
+.report-id-box{background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:18px; margin-bottom:20px;}
+.report-id-box .lbl{font-family:var(--font-mono); font-size:0.7rem; opacity:0.65; text-transform:uppercase; letter-spacing:0.05em;}
+.report-id-box .id{font-family:var(--font-mono); font-size:1.1rem; margin-top:4px;}
+.anon-note{font-size:0.78rem; color:rgba(22,36,28,0.55); margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+
+.dash-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:36px 0 18px;}
+.stat-card{border:1px solid var(--line); border-radius:var(--radius); padding:20px; background:var(--paper);}
+.stat-card .lbl{font-family:var(--font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:rgba(22,36,28,0.55);}
+.stat-card .val{font-family:var(--font-display); font-size:1.8rem; margin-top:8px;}
+.dash-two{display:grid; grid-template-columns:1.3fr 1fr; gap:22px; padding:8px 0 74px;}
+.panel{border:1px solid var(--line); border-radius:var(--radius); padding:22px; background:var(--paper);}
+.panel h3{font-size:0.98rem; margin-bottom:14px;}
+.hist-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.84rem;}
+.hist-row:last-child{border-bottom:none;} .hist-empty{color:rgba(22,36,28,0.45); font-size:0.86rem; padding:12px 0;}
+.lb-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:0.86rem;}
+.lb-row:last-child{border-bottom:none;} .lb-rank{font-family:var(--font-mono); width:20px; color:rgba(22,36,28,0.5);}
+.lb-you{color:var(--moss); font-weight:700;}
+.level-chip{font-family:var(--font-mono); font-size:0.7rem; background:var(--marigold); color:var(--ink); padding:3px 10px; border-radius:999px; display:inline-block; margin-top:8px;}
+
+.rev-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:56px;}
+.rev-card{border:1px solid var(--line); border-radius:var(--radius); padding:16px; background:var(--paper);}
+.rev-card .ic{font-size:1.35rem; margin-bottom:8px; display:block;}
+.rev-card h3{font-size:0.86rem; margin-bottom:6px;} .rev-card p{font-size:0.76rem; color:rgba(22,36,28,0.6);}
+.flywheel{display:flex; flex-wrap:wrap; align-items:center; gap:0; margin-bottom:14px;}
+.fw-step{border:1px solid var(--line); border-radius:999px; padding:9px 15px; font-size:0.8rem; font-weight:600; background:var(--paper); white-space:nowrap;}
+.fw-arrow{padding:0 8px; color:var(--marigold-deep); font-weight:700;}
+.fw-loop-note{font-family:var(--font-mono); font-size:0.78rem; color:var(--moss); margin-top:12px; display:block;}
+.pullquote{border-left:3px solid var(--marigold); padding:6px 0 6px 22px; font-family:var(--font-display); font-size:1.15rem; font-style:italic; color:var(--ink); margin:44px 0 0;}
+
+.toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0; background:var(--ink); color:var(--paper); padding:12px 20px; border-radius:9px; font-size:0.85rem; font-family:var(--font-mono); z-index:100; transition:opacity .25s, transform .25s; pointer-events:none; max-width:88vw; text-align:center;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+.celebrate-overlay{position:fixed; inset:0; pointer-events:none; z-index:200; overflow:hidden;}
+.confetti-piece{position:absolute; top:-24px; border-radius:2px; opacity:0.95; animation-name:confetti-fall; animation-timing-function:cubic-bezier(.35,.6,.4,1); animation-fill-mode:forwards;}
+@keyframes confetti-fall{
+  0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(105vh) rotate(560deg); opacity:0.15; }
+}
+.celebrate-badge{
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.4); opacity:0;
+  background:var(--ink); color:var(--paper); padding:24px 38px; border-radius:18px; text-align:center;
+  box-shadow:0 24px 70px rgba(0,0,0,0.4); z-index:201; animation:celebrate-pop 2.3s cubic-bezier(.2,.8,.3,1) forwards;
+  border:1.5px solid var(--marigold);
+}
+.celebrate-badge .pts{font-family:var(--font-display); font-size:2.1rem; font-weight:600; color:var(--marigold);}
+.celebrate-badge .cheer{font-family:var(--font-mono); font-size:0.82rem; margin-top:6px; opacity:0.85;}
+@keyframes celebrate-pop{
+  0%{ opacity:0; transform:translate(-50%,-50%) scale(0.4) rotate(-4deg); }
+  14%{ opacity:1; transform:translate(-50%,-50%) scale(1.12) rotate(2deg); }
+  24%{ transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+  82%{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(0.94) translateY(-14px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .confetti-piece{display:none;}
+  .celebrate-badge{animation:none; opacity:1; transform:translate(-50%,-50%) scale(1);}
+}
+
+@media (max-width: 900px){
+  .hero .wrap{grid-template-columns:1fr;} .loop-wrap{order:-1;}
+  .stage-loop, .directory-grid, .market-grid, .rev-grid, .partner-strip{grid-template-columns:repeat(2,1fr);}
+  .cards3, .cards2, .reward-grid, .dash-grid, .tier-grid, .comp-grid{grid-template-columns:1fr;}
+  .flow-grid, .watch-grid, .dash-two, .voice-grid{grid-template-columns:1fr;}
+  .factor-grid{grid-template-columns:repeat(2,1fr);}
+  nav.top .inner{height:auto; flex-wrap:wrap; padding:10px 16px;}
+  .tabs{order:3; width:100%; padding-top:6px; border-top:1px solid var(--line);}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 7.07 2.93" stroke="#3D6B4A" stroke-width="2" stroke-linecap="round"/><path d="M18 2v5h-5" stroke="#E7A233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      WasteLoop
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-tab="home" class="active" data-i18n="nav_home">Home</button>
+      <button data-tab="voice" data-i18n="nav_voice">Voice Assistant</button>
+      <button data-tab="pickup" data-i18n="nav_pickup">Request Pickup</button>
+      <button data-tab="network" data-i18n="nav_network">Waste Network</button>
+      <button data-tab="rewards" data-i18n="nav_rewards">Rewards &amp; Community</button>
+      <button data-tab="watch" data-i18n="nav_watch">WasteWatch</button>
+      <button data-tab="dash" data-i18n="nav_dash">Dashboard</button>
+      <button data-tab="business" data-i18n="nav_business">Business Model</button>
+    </div>
+    <div class="nav-right">
+      <div class="lang-select"><span>🌐</span>
+        <select id="langSelect">
+          <option value="en" data-i18n="lang_en">English</option>
+          <option value="ta" data-i18n="lang_ta">தமிழ்</option>
+          <option value="hi" data-i18n="lang_hi">हिन्दी</option>
+        </select>
+      </div>
+      <div class="points-pill"><span class="dot"></span><span id="navPoints">0</span> <span data-i18n="nav_pts">pts</span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow" data-i18n="home_eyebrow">AI-powered circular economy · India-first</span>
+        <h1 id="heroHeadline" data-i18n-html="home_headline">Waste out. <em>Value in.</em></h1>
+        <p class="lead" data-i18n="home_lead">Ask for a pickup by voice or tap, and WasteLoop's AI sorts, routes, and rewards it — turning what you throw away into compost, recycled material, or energy, and turning your effort into real rewards.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="goTab('pickup')" data-i18n="home_cta_pickup">Request a pickup →</button>
+          <button class="btn btn-ghost" onclick="goTab('voice')" data-i18n="home_cta_voice">Try the voice assistant</button>
+        </div>
+      </div>
+      <div class="loop-wrap">
+        <svg viewBox="0 0 320 320" width="300" height="300">
+          <g class="loop-ring" transform="translate(160,160)"><circle r="118" fill="none" stroke="rgba(245,241,230,0.25)" stroke-width="1.5" stroke-dasharray="2 7"/></g>
+          <circle cx="160" cy="160" r="80" fill="rgba(245,241,230,0.05)" stroke="rgba(245,241,230,0.2)" stroke-width="1"/>
+          <text x="160" y="156" text-anchor="middle" class="loop-center">The</text>
+          <text x="160" y="176" text-anchor="middle" class="loop-center">Loop</text>
+          <g id="loopNodes"></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="home_dir_eyebrow">Everything in one platform</span>
+        <h2 data-i18n="home_dir_title">Ten systems, working as one</h2>
+        <p data-i18n="home_dir_desc">Each card opens the working part of the platform — this is the full feature set, not a mockup.</p>
+      </div>
+      <div class="directory-grid">
+        <button class="dcard" onclick="goTab('pickup')"><span class="ic">♻️</span><h3 data-i18n="home_dir1_t">Pickup requests</h3><p data-i18n="home_dir1_d">Log waste by voice or form</p></button>
+        <button class="dcard" onclick="goTab('voice')"><span class="ic">🎙️</span><h3 data-i18n="home_dir2_t">AI voice assistant</h3><p data-i18n="home_dir2_d">The main accessibility interface</p></button>
+        <button class="dcard" onclick="goTab('network')"><span class="ic">🧠</span><h3 data-i18n="home_dir3_t">AI routing engine</h3><p data-i18n="home_dir3_d">Matches waste to the best destination</p></button>
+        <button class="dcard" onclick="goTab('network')"><span class="ic">🌾</span><h3 data-i18n="home_dir4_t">Organic waste network</h3><p data-i18n="home_dir4_d">Compost and biogas partners</p></button>
+        <button class="dcard" onclick="goTab('network')"><span class="ic">♻️</span><h3 data-i18n="home_dir5_t">Recyclable marketplace</h3><p data-i18n="home_dir5_d">Plastic, paper, metal, e-waste</p></button>
+        <button class="dcard" onclick="goTab('rewards')"><span class="ic">🪙</span><h3 data-i18n="home_dir6_t">EcoPoints</h3><p data-i18n="home_dir6_d">Earned for every verified contribution</p></button>
+        <button class="dcard" onclick="goTab('rewards')"><span class="ic">🎁</span><h3 data-i18n="home_dir7_t">Reward marketplace</h3><p data-i18n="home_dir7_d">Stationery, grocery, electronics</p></button>
+        <button class="dcard" onclick="goTab('rewards')"><span class="ic">📢</span><h3 data-i18n="home_dir8_t">Brand partners</h3><p data-i18n="home_dir8_d">Sponsored rewards and challenges</p></button>
+        <button class="dcard" onclick="goTab('rewards')"><span class="ic">🏆</span><h3 data-i18n="home_dir9_t">Community competitions</h3><p data-i18n="home_dir9_d">Apartments and colleges compete</p></button>
+        <button class="dcard" onclick="goTab('watch')"><span class="ic">🚨</span><h3 data-i18n="home_dir10_t">WasteWatch</h3><p data-i18n="home_dir10_d">Anonymous unsafe-waste reporting</p></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="band band-dim">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="home_who_eyebrow">Who it's built for</span>
+        <h2 data-i18n="home_who_title">Built for every user, not just the tech-comfortable ones</h2>
+      </div>
+      <div class="cards2">
+        <div class="card"><span class="tag tag-organic" data-i18n="home_lang_tag">🇮🇳 Language</span><h3 data-i18n="home_lang_title">India-first, not English-only</h3><p data-i18n="home_lang_desc">The interface and voice assistant work in English and Indian languages, so people who aren't comfortable typing in English are never left out.</p></div>
+        <div class="card"><span class="tag tag-recycle" data-i18n="home_acc_tag">♿ Accessibility</span><h3 data-i18n="home_acc_title">Speak instead of tap, scroll, and type</h3><p data-i18n="home_acc_desc">The voice assistant replaces small buttons and complex navigation for anyone who finds typing, reading, or standard app interfaces difficult.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer><div class="wrap"><span data-i18n="home_footer_left">WasteLoop — a software-only circular-economy platform.</span><span class="mono" data-i18n="home_footer_right">Demo build · hackathon prototype</span></div></footer>
+</section>
+
+<!-- VOICE ASSISTANT -->
+<section id="voice">
+  <div class="page-head"><div class="wrap">
+    <span class="eyebrow mono" data-i18n="voice_eyebrow">AI Voice Assistant</span>
+    <h2 data-i18n="voice_title">Not a chatbot — the main way people use WasteLoop</h2>
+    <p data-i18n="voice_desc">Request pickups, check EcoPoints, check rewards, track a collection, ask waste questions, report unsafe waste, or set reminders — all by talking, in your preferred language.</p>
+  </div></div>
+  <div class="wrap voice-grid">
+    <div>
+      <h3 style="font-size:0.95rem; margin-bottom:14px;" data-i18n="voice_caps_title">What you can ask it to do</h3>
+      <ul class="cap-list">
+        <li><span class="ic">♻️</span><span data-i18n="voice_cap1">Request pickup — describe your waste and it's scheduled.</span></li>
+        <li><span class="ic">🪙</span><span data-i18n="voice_cap2">Check EcoPoints — hear your current balance.</span></li>
+        <li><span class="ic">🎁</span><span data-i18n="voice_cap3">Check rewards — hear what you can redeem right now.</span></li>
+        <li><span class="ic">🚚</span><span data-i18n="voice_cap4">Track collection — get the status of a pending pickup.</span></li>
+        <li><span class="ic">❓</span><span data-i18n="voice_cap5">Ask waste questions — "where does plastic go?" and similar.</span></li>
+        <li><span class="ic">🚨</span><span data-i18n="voice_cap6">Report unsafe waste — start an anonymous WasteWatch report.</span></li>
+        <li><span class="ic">⏰</span><span data-i18n="voice_cap7">Set a reminder — get nudged before your next pickup.</span></li>
+      </ul>
+      <p style="margin-top:16px;" class="hint" data-i18n="voice_try_hint">Try the example below, straight from the original brief — then type your own.</p>
+      <div class="chip-row" style="margin-top:10px;">
+        <button class="chip" data-i18n="voice_try_tamil" onclick="sendChat('என்னிடம் 3 கிலோ பேப்பர் இருக்கு. Pickup வேண்டும்.')">🇮🇳 Try the Tamil example</button>
+      </div>
+    </div>
+    <div>
+      <div class="chat-panel">
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chip-row" style="padding:0 14px 12px;">
+          <button class="chip" data-i18n="voice_chip_points" onclick="sendChat('Check my EcoPoints')">Check EcoPoints</button>
+          <button class="chip" data-i18n="voice_chip_rewards" onclick="sendChat('Check rewards')">Check rewards</button>
+          <button class="chip" data-i18n="voice_chip_track" onclick="sendChat('Track my collection')">Track collection</button>
+          <button class="chip" data-i18n="voice_chip_report" onclick="sendChat('Report unsafe waste')">Report unsafe waste</button>
+          <button class="chip" data-i18n="voice_chip_reminder" onclick="sendChat('Set a reminder')">Set reminder</button>
+        </div>
+        <div class="chat-input-row">
+          <button class="mic-btn" id="voiceMicBtn" onclick="voiceMicToChat()">🎙️</button>
+          <input type="text" id="chatInput" data-i18n-placeholder="voice_input_placeholder" placeholder="Type or speak what you need…" onkeydown="if(event.key==='Enter')sendChatFromInput()">
+          <button class="btn btn-dark btn-sm" data-i18n="voice_send" onclick="sendChatFromInput()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PICKUP -->
+<section id="pickup">
+  <div class="page-head"><div class="wrap">
+    <span class="eyebrow mono" data-i18n="pickup_eyebrow">Request Pickup</span>
+    <h2 data-i18n="pickup_title">Tell WasteLoop what you have</h2>
+    <p data-i18n="pickup_desc">Describe it in your own words, or use the mic. Classification happens on the backend, the same way a production model would sit behind this call.</p>
+  </div></div>
+  <div class="wrap flow-grid">
+    <div>
+      <div class="field-group">
+        <label for="wasteDesc" data-i18n="pickup_desc_label">Describe your waste</label>
+        <textarea id="wasteDesc" data-i18n-placeholder="pickup_desc_placeholder" placeholder="e.g. 3 kg of paper, some plastic bottles, and an old mixer grinder"></textarea>
+        <p class="hint" data-i18n="pickup_multi_hint" style="margin-top:6px;">You can list more than one type of waste — separate them with commas or "and".</p>
+        <div class="mic-row"><button class="mic-btn" id="micBtn" data-i18n="pickup_mic" onclick="simulateVoice()">🎙️ Speak instead</button><span class="hint" id="micHint" data-i18n="pickup_mic_hint">Try it in Tamil, Hindi, or English</span></div>
+      </div>
+      <div class="field-group"><label for="qty" data-i18n="pickup_qty_label">Approximate quantity</label>
+        <select id="qty">
+          <option data-i18n="pickup_qty1">Less than 1 kg</option>
+          <option selected data-i18n="pickup_qty2">1–5 kg</option>
+          <option data-i18n="pickup_qty3">5–15 kg</option>
+          <option data-i18n="pickup_qty4">15+ kg</option>
+        </select>
+      </div>
+      <div class="field-group"><label for="loc" data-i18n="pickup_loc_label">Location type</label>
+        <select id="loc">
+          <option data-i18n="pickup_loc1">Home — Apartment</option>
+          <option data-i18n="pickup_loc2">Restaurant / Hotel</option>
+          <option data-i18n="pickup_loc3">College / Institution</option>
+          <option data-i18n="pickup_loc4">Office</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="address" data-i18n="pickup_address_label">Your address</label>
+        <textarea id="address" data-i18n-placeholder="pickup_address_placeholder" placeholder="e.g. 12, Anna Nagar 2nd Street, Chennai 600040" style="min-height:56px;"></textarea>
+      </div>
+      <button class="btn btn-dark" style="width:100%; justify-content:center;" data-i18n="pickup_submit" onclick="submitPickup()">Request pickup</button>
+    </div>
+    <div class="result-panel idle" id="resultPanel" data-i18n="pickup_idle">Your AI classification result will appear here once you submit a request.</div>
+  </div>
+  <div class="wrap" style="padding-bottom:56px;">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="pickup_rates_eyebrow">EcoPoints rates</span>
+      <h2 data-i18n="pickup_rates_title">How many points you earn, by waste type</h2>
+      <p data-i18n="pickup_rates_desc">Rates are per kg, credited once the collector confirms the pickup.</p>
+    </div>
+    <div class="market-grid" id="rateGrid" style="grid-template-columns:repeat(4,1fr);"></div>
+  </div>
+</section>
+
+<!-- WASTE NETWORK -->
+<section id="network">
+  <div class="page-head"><div class="wrap">
+    <span class="eyebrow mono" data-i18n="network_eyebrow">The Waste Network</span>
+    <h2 data-i18n="network_title">Not waste → landfill. Waste → highest-value destination.</h2>
+    <p data-i18n="network_desc">WasteLoop doesn't own trucks, farms, or recycling plants. It's the digital connection between waste generators and verified processing partners.</p>
+  </div></div>
+  <div class="band" style="padding-top:40px;"><div class="wrap">
+    <div class="section-head"><span class="eyebrow" data-i18n="network_routing_eyebrow">AI routing engine</span><h2 data-i18n="network_routing_title">What it weighs before matching a partner</h2></div>
+    <div class="factor-grid">
+      <div class="factor"><span class="n">01</span> <span data-i18n="network_f1">Waste category</span></div>
+      <div class="factor"><span class="n">02</span> <span data-i18n="network_f2">Quantity</span></div>
+      <div class="factor"><span class="n">03</span> <span data-i18n="network_f3">Location</span></div>
+      <div class="factor"><span class="n">04</span> <span data-i18n="network_f4">Processor capacity</span></div>
+      <div class="factor"><span class="n">05</span> <span data-i18n="network_f5">Demand</span></div>
+      <div class="factor"><span class="n">06</span> <span data-i18n="network_f6">Transport distance</span></div>
+      <div class="factor"><span class="n">07</span> <span data-i18n="network_f7">Processing options</span></div>
+    </div>
+  </div></div>
+  <div class="band band-dim"><div class="wrap">
+    <div class="section-head"><span class="eyebrow" data-i18n="network_organic_eyebrow">Organic waste network</span><h2 data-i18n="network_organic_title">Two paths for food, garden, and kitchen waste</h2></div>
+    <div class="flow"><div class="flow-box" data-i18n="network_o1a">Organic waste</div><span class="flow-arrow">→</span><div class="flow-box" data-i18n="network_o1b">Composting facility</div><span class="flow-arrow">→</span><div class="flow-box hl" data-i18n="network_o1c">Compost</div><span class="flow-arrow">→</span><div class="flow-box" data-i18n="network_o1d">Farmers</div></div>
+    <div class="flow"><div class="flow-box" data-i18n="network_o2a">Suitable organic waste</div><span class="flow-arrow">→</span><div class="flow-box" data-i18n="network_o2b">Anaerobic digestion</div><span class="flow-arrow">→</span><div class="flow-box hl" data-i18n="network_o2c">Biogas / energy</div></div>
+  </div></div>
+  <div class="band"><div class="wrap">
+    <div class="section-head"><span class="eyebrow" data-i18n="network_market_eyebrow">Recyclable marketplace</span><h2 data-i18n="network_market_title">Supply meets demand, by category</h2></div>
+    <div class="market-grid">
+      <div class="market-card"><span class="ic">🧴</span><h3 data-i18n="network_m1">Plastic</h3><p data-i18n="network_m1d">→ Recyclers</p></div>
+      <div class="market-card"><span class="ic">📄</span><h3 data-i18n="network_m2">Paper</h3><p data-i18n="network_m2d">→ Paper-recycling businesses</p></div>
+      <div class="market-card"><span class="ic">🔩</span><h3 data-i18n="network_m3">Metal</h3><p data-i18n="network_m3d">→ Metal recovery</p></div>
+      <div class="market-card"><span class="ic">🔌</span><h3 data-i18n="network_m4">E-waste</h3><p data-i18n="network_m4d">→ Authorised e-waste processors</p></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- REWARDS & COMMUNITY -->
+<section id="rewards">
+  <div class="page-head"><div class="wrap">
+    <span class="eyebrow mono" data-i18n="rewards_eyebrow">Rewards &amp; Community</span>
+    <h2 data-i18n="rewards_title">EcoPoints, real rewards, and friendly competition</h2>
+    <p data-i18n="rewards_desc">Every reward here is stocked by a brand partner — they get visibility, you get useful products, WasteLoop earns a placement fee.</p>
+  </div></div>
+  <div class="wrap" style="padding-top:36px;">
+    <div class="balance-bar"><div><div class="lbl" data-i18n="rewards_balance_label">Your balance</div><div class="big"><span id="rewardsPoints">0</span> EcoPoints</div></div><button class="btn btn-primary btn-sm" data-i18n="rewards_earn_more" onclick="goTab('pickup')">Earn more →</button></div>
+
+    <div class="section-head"><span class="eyebrow" data-i18n="rewards_marketplace_eyebrow">Reward marketplace</span><h2 data-i18n="rewards_marketplace_title">Redeem your points</h2></div>
+    <div class="reward-grid" id="rewardGrid"></div>
+
+    <div class="section-head"><span class="eyebrow" data-i18n="rewards_partners_eyebrow">Brand partners</span><h2 data-i18n="rewards_partners_title">Who stocks the reward store</h2></div>
+    <div class="partner-strip">
+      <div class="partner-chip">XYZ Stationery</div><div class="partner-chip">EarthPack</div><div class="partner-chip">FreshMart</div>
+      <div class="partner-chip">HomeEase</div><div class="partner-chip">SoundCore</div><div class="partner-chip">CircuitBox</div>
+    </div>
+    <div class="challenge-banner">
+      <div><h3 data-i18n="rewards_challenge_title">🥤 Plastic Recovery Challenge</h3><p data-i18n="rewards_challenge_desc">Sponsored by CircuitBox · Collect verified recyclable plastic this month</p></div>
+      <button class="btn btn-dark btn-sm" data-i18n="rewards_join" onclick="toast(t('rewards_challenge_toast'))">Join challenge</button>
+    </div>
+
+    <div class="section-head"><span class="eyebrow" data-i18n="rewards_tiers_eyebrow">Monthly reward system</span><h2 data-i18n="rewards_tiers_title">Your tier, based on verified EcoPoints</h2></div>
+    <div class="tier-grid" id="tierGrid"></div>
+
+    <div class="section-head"><span class="eyebrow" data-i18n="rewards_community_eyebrow">Community competitions</span><h2 data-i18n="rewards_community_title">Healthy participation, without the mental load</h2></div>
+    <div class="comp-grid">
+      <div class="comp-card"><h3 data-i18n="rewards_comp1_title">🏢 Apartment A vs Apartment B</h3>
+        <div class="comp-row"><span>Green Meadows (A)</span><span class="mono">4,120 pts</span></div><div class="bar-bg"><div class="bar-fill" style="width:82%"></div></div>
+        <div class="comp-row"><span>Palm Residency (B)</span><span class="mono">3,860 pts</span></div><div class="bar-bg"><div class="bar-fill b" style="width:77%"></div></div>
+      </div>
+      <div class="comp-card"><h3 data-i18n="rewards_comp2_title">🎓 College A vs College B</h3>
+        <div class="comp-row"><span>St. Xavier's (A)</span><span class="mono">6,340 pts</span></div><div class="bar-bg"><div class="bar-fill" style="width:88%"></div></div>
+        <div class="comp-row"><span>Loyola Institute (B)</span><span class="mono">5,910 pts</span></div><div class="bar-bg"><div class="bar-fill b" style="width:82%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WASTEWATCH -->
+<section id="watch">
+  <div class="page-head"><div class="wrap">
+    <span class="eyebrow mono" data-i18n="watch_eyebrow">WasteWatch</span>
+    <h2 data-i18n="watch_title">Report unsafe or illegal dumping — anonymously</h2>
+    <p data-i18n="watch_desc">Take a photo from a safe distance and submit. Your identity is never shared with the receiving authority. Never touch, move, or investigate suspicious material yourself.</p>
+  </div></div>
+  <div class="wrap watch-grid">
+    <div>
+      <div class="field-group"><label data-i18n="watch_photo_label">Photo (optional)</label><div class="file-btn" data-i18n="watch_photo_btn">📷 Tap to attach a photo</div><p class="hint" data-i18n="watch_loc_note">Location is attached automatically from your device.</p></div>
+      <div class="field-group"><label for="watchDesc" data-i18n="watch_desc_label">What did you notice?</label><textarea id="watchDesc" data-i18n-placeholder="watch_desc_placeholder" placeholder="e.g. Drums of unknown liquid dumped behind the market"></textarea></div>
+      <button class="btn btn-dark" style="width:100%; justify-content:center;" data-i18n="watch_submit" onclick="submitReport()">Submit anonymous report</button>
+    </div>
+    <div class="result-panel idle" id="watchPanel" data-i18n="watch_idle">Your report status will appear here.</div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dash">
+  <div class="page-head"><div class="wrap"><span class="eyebrow mono" data-i18n="dash_eyebrow">Dashboard</span><h2 data-i18n="dash_title">Your loop, at a glance</h2><p data-i18n="dash_desc">Track your EcoPoints, activity, and how your community compares.</p></div></div>
+  <div class="wrap">
+    <div class="dash-grid">
+      <div class="stat-card"><div class="lbl" data-i18n="dash_points_label">EcoPoints balance</div><div class="val" id="dashPoints">0</div><span class="level-chip" id="dashLevel">Eco Starter</span></div>
+      <div class="stat-card"><div class="lbl" data-i18n="dash_pickups_label">Pickups requested</div><div class="val" id="dashPickups">0</div></div>
+      <div class="stat-card"><div class="lbl" data-i18n="dash_reports_label">WasteWatch reports</div><div class="val" id="dashReports">0</div></div>
+    </div>
+    <div class="dash-two">
+      <div class="panel"><h3 data-i18n="dash_activity_title">Recent activity</h3><div id="histList"><div class="hist-empty" data-i18n="dash_empty_hist">No activity yet — request a pickup to get started.</div></div></div>
+      <div class="panel"><h3 data-i18n="dash_leaderboard_title">Apartment leaderboard</h3>
+        <div class="lb-row"><span><span class="lb-rank">1</span>Green Meadows Block C</span><span class="mono">4,120 pts</span></div>
+        <div class="lb-row"><span><span class="lb-rank">2</span>Palm Residency</span><span class="mono">3,860 pts</span></div>
+        <div class="lb-row"><span><span class="lb-rank">3</span>Lakeview Apartments</span><span class="mono">3,510 pts</span></div>
+        <div class="lb-row"><span><span class="lb-rank">4</span>Sunrise Colony</span><span class="mono">2,990 pts</span></div>
+        <div class="lb-row"><span><span class="lb-rank lb-you" data-i18n="dash_you">You</span><span data-i18n="dash_you_household">Your household</span></span><span class="mono lb-you" id="lbYou">0 pts</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUSINESS MODEL -->
+<section id="business">
+  <div class="page-head"><div class="wrap"><span class="eyebrow mono" data-i18n="business_eyebrow">Business Model</span><h2 data-i18n="business_title">Built to be a business, not just an app</h2><p data-i18n="business_desc">Five revenue streams, and rewards that function as the growth engine rather than a cost centre.</p></div></div>
+  <div class="wrap" style="padding-top:40px;">
+    <div class="section-head"><span class="eyebrow" data-i18n="business_rev_eyebrow">Revenue streams</span><h2 data-i18n="business_rev_title">How WasteLoop earns</h2></div>
+    <div class="rev-grid">
+      <div class="rev-card"><span class="ic">♻️</span><h3 data-i18n="business_rev1_t">Transaction commissions</h3><p data-i18n="business_rev1_d">A fee each time waste is matched to a processor.</p></div>
+      <div class="rev-card"><span class="ic">🏢</span><h3 data-i18n="business_rev2_t">B2B subscriptions</h3><p data-i18n="business_rev2_d">Apartments, colleges, hotels, and companies pay for the software.</p></div>
+      <div class="rev-card"><span class="ic">📢</span><h3 data-i18n="business_rev3_t">Brand promotions</h3><p data-i18n="business_rev3_d">Sponsored rewards, challenges, and store placement.</p></div>
+      <div class="rev-card"><span class="ic">📊</span><h3 data-i18n="business_rev4_t">Analytics</h3><p data-i18n="business_rev4_d">Reporting and insights for large organisations.</p></div>
+      <div class="rev-card"><span class="ic">🚛</span><h3 data-i18n="business_rev5_t">Collection partnerships</h3><p data-i18n="business_rev5_d">Revenue share with collection providers.</p></div>
+    </div>
+
+    <div class="section-head"><span class="eyebrow" data-i18n="business_fly_eyebrow">The business flywheel</span><h2 data-i18n="business_fly_title">Rewards aren't an expense — they're the engine</h2></div>
+    <div class="flywheel" id="flywheel"></div>
+    <span class="fw-loop-note" data-i18n="business_loop_note">↻ Every full turn feeds the next — more users leads back to more users.</span>
+
+    <p class="pullquote" data-i18n="business_pullquote">"WasteLoop is an AI-powered circular-economy platform that makes waste disposal effortless for people, turns waste into value for businesses and farmers, and rewards communities for participating."</p>
+  </div>
+  <div style="height:70px;"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+<div class="celebrate-overlay" id="celebrateOverlay"></div><script>
+// ---------------------------------------------------------------------------
+// Site-wide translations. Every piece of static UI text lives here, keyed by
+// a short id. Elements in index.html reference these ids via data-i18n /
+// data-i18n-html / data-i18n-placeholder attributes; app.js's dynamic render
+// functions (rewards, tiers, dashboard, toasts) call t('key') directly.
+//
+// NOTE: Tamil/Hindi strings here are demo-quality machine translations —
+// good enough to show the multilingual feature working end-to-end. Swap in
+// native-speaker-reviewed copy before shipping this for real.
+// ---------------------------------------------------------------------------
+const translations = {
+  en: {
+    // nav
+    nav_home: 'Home', nav_voice: 'Voice Assistant', nav_pickup: 'Request Pickup',
+    nav_network: 'Waste Network', nav_rewards: 'Rewards & Community', nav_watch: 'WasteWatch',
+    nav_dash: 'Dashboard', nav_business: 'Business Model', nav_pts: 'pts',
+    lang_en: 'English', lang_ta: 'தமிழ்', lang_hi: 'हिन्दी',
+
+    // home
+    home_eyebrow: 'AI-powered circular economy · India-first',
+    home_headline: 'Waste out. <em>Value in.</em>',
+    home_lead: "Ask for a pickup by voice or tap, and WasteLoop's AI sorts, routes, and rewards it — turning what you throw away into compost, recycled material, or energy, and turning your effort into real rewards.",
+    home_cta_pickup: 'Request a pickup →', home_cta_voice: 'Try the voice assistant',
+    home_dir_eyebrow: 'Everything in one platform', home_dir_title: 'Ten systems, working as one',
+    home_dir_desc: 'Each card opens the working part of the platform — this is the full feature set, not a mockup.',
+    home_dir1_t: 'Pickup requests', home_dir1_d: 'Log waste by voice or form',
+    home_dir2_t: 'AI voice assistant', home_dir2_d: 'The main accessibility interface',
+    home_dir3_t: 'AI routing engine', home_dir3_d: 'Matches waste to the best destination',
+    home_dir4_t: 'Organic waste network', home_dir4_d: 'Compost and biogas partners',
+    home_dir5_t: 'Recyclable marketplace', home_dir5_d: 'Plastic, paper, metal, e-waste',
+    home_dir6_t: 'EcoPoints', home_dir6_d: 'Earned for every verified contribution',
+    home_dir7_t: 'Reward marketplace', home_dir7_d: 'Stationery, grocery, electronics',
+    home_dir8_t: 'Brand partners', home_dir8_d: 'Sponsored rewards and challenges',
+    home_dir9_t: 'Community competitions', home_dir9_d: 'Apartments and colleges compete',
+    home_dir10_t: 'WasteWatch', home_dir10_d: 'Anonymous unsafe-waste reporting',
+    home_who_eyebrow: "Who it's built for", home_who_title: 'Built for every user, not just the tech-comfortable ones',
+    home_lang_tag: '🇮🇳 Language', home_lang_title: 'India-first, not English-only',
+    home_lang_desc: "The interface and voice assistant work in English and Indian languages, so people who aren't comfortable typing in English are never left out.",
+    home_acc_tag: '♿ Accessibility', home_acc_title: 'Speak instead of tap, scroll, and type',
+    home_acc_desc: 'The voice assistant replaces small buttons and complex navigation for anyone who finds typing, reading, or standard app interfaces difficult.',
+    home_footer_left: 'WasteLoop — a software-only circular-economy platform.',
+    home_footer_right: 'Demo build · hackathon prototype',
+
+    // voice assistant page
+    voice_eyebrow: 'AI Voice Assistant', voice_title: "Not a chatbot — the main way people use WasteLoop",
+    voice_desc: 'Request pickups, check EcoPoints, check rewards, track a collection, ask waste questions, report unsafe waste, or set reminders — all by talking, in your preferred language.',
+    voice_caps_title: 'What you can ask it to do',
+    voice_cap1: 'Request pickup — describe your waste and it\'s scheduled.',
+    voice_cap2: 'Check EcoPoints — hear your current balance.',
+    voice_cap3: 'Check rewards — hear what you can redeem right now.',
+    voice_cap4: 'Track collection — get the status of a pending pickup.',
+    voice_cap5: 'Ask waste questions — "where does plastic go?" and similar.',
+    voice_cap6: 'Report unsafe waste — start an anonymous WasteWatch report.',
+    voice_cap7: 'Set a reminder — get nudged before your next pickup.',
+    voice_try_hint: 'Try the example below, straight from the original brief — then type your own.',
+    voice_try_tamil: '🇮🇳 Try the Tamil example',
+    voice_chip_points: 'Check EcoPoints', voice_chip_rewards: 'Check rewards',
+    voice_chip_track: 'Track collection', voice_chip_report: 'Report unsafe waste',
+    voice_chip_reminder: 'Set reminder',
+    voice_input_placeholder: 'Type or speak what you need…', voice_send: 'Send',
+    voice_greeting: "Hi, I'm the WasteLoop assistant. Ask me to request a pickup, check your points, or anything else on the left.",
+    voice_backend_error: "Couldn't reach the backend ({err}). Is it running on http://localhost:3000?",
+
+    // pickup page
+    pickup_eyebrow: 'Request Pickup', pickup_title: 'Tell WasteLoop what you have',
+    pickup_desc: 'Describe it in your own words, or use the mic. Classification happens on the backend, the same way a production model would sit behind this call.',
+    pickup_desc_label: 'Describe your waste', pickup_desc_placeholder: 'e.g. 3 kg of paper, some plastic bottles, and an old mixer grinder',
+    pickup_multi_hint: 'You can list more than one type of waste — separate them with commas or "and".',
+    pickup_mic: '🎙️ Speak instead', pickup_mic_hint: 'Try it in Tamil, Hindi, or English',
+    pickup_qty_label: 'Approximate quantity',
+    pickup_qty1: 'Less than 1 kg', pickup_qty2: '1–5 kg', pickup_qty3: '5–15 kg', pickup_qty4: '15+ kg',
+    pickup_loc_label: 'Location type',
+    pickup_address_label: 'Your address', pickup_address_placeholder: 'e.g. 12, Anna Nagar 2nd Street, Chennai 600040',
+    pickup_address_required: 'Please enter your pickup address',
+    pickup_loc1: 'Home — Apartment', pickup_loc2: 'Restaurant / Hotel', pickup_loc3: 'College / Institution', pickup_loc4: 'Office',
+    pickup_submit: 'Request pickup',
+    pickup_idle: 'Your AI classification result will appear here once you submit a request.',
+    pickup_think1: 'Reading your description…', pickup_think2: 'Matching to nearest partner…', pickup_think3: 'Calculating EcoPoints…',
+    pickup_confirmed: 'pickup confirmed', pickup_row_qty: 'Quantity band', pickup_row_loc: 'Location type', pickup_row_address: 'Address',
+    pickup_row_routed: 'Routed to', pickup_row_collector: 'Assigned collector', pickup_row_status: 'Status', pickup_status_scheduled: 'Scheduled',
+    pickup_status_out: 'Out for Collection', pickup_status_collected: 'Collected',
+    pickup_simulate_btn: 'Simulate status update (demo)',
+    pickup_simulate_note: 'Live GPS tracking needs a collector-side app — this button simulates the status pipeline for the demo.',
+    pickup_points_pending: 'Pending collector confirmation',
+    pickup_collector_confirm_btn: '✅ Simulate confirmation from {collector}',
+    pickup_collector_confirm_note: "In production, the collector confirms the pickup from their own app before points are credited — this button simulates that confirmation for the demo.",
+    pickup_confirmed_toast: '{collector} confirmed pickup · +{points} EcoPoints',
+    pickup_requested_toast: 'Pickup requested — waiting for collector confirmation',
+    pickup_multi_summary: '{count} waste types detected — each is routed to its own collector',
+    pickup_confirm_all_btn: '✅ Simulate confirmation for all pickups',
+    pickup_rates_eyebrow: 'EcoPoints rates', pickup_rates_title: 'How many EcoPoints you earn for 1 kg of each waste type',
+    pickup_rates_desc: 'Credited once the collector confirms the pickup.',
+    pickup_rate_unit: 'points for 1 kg',
+    pickup_tracking: 'Tracking ID', pickup_describe_first: 'Describe your waste first',
+    pickup_backend_error: "Couldn't reach the backend — is it running on http://localhost:3000? ({err})",
+    pickup_scheduled_toast: 'Pickup scheduled · +{points} EcoPoints',
+
+    // waste network page
+    network_eyebrow: 'The Waste Network', network_title: 'Not waste → landfill. Waste → highest-value destination.',
+    network_desc: "WasteLoop doesn't own trucks, farms, or recycling plants. It's the digital connection between waste generators and verified processing partners.",
+    network_routing_eyebrow: 'AI routing engine', network_routing_title: 'What it weighs before matching a partner',
+    network_f1: 'Waste category', network_f2: 'Quantity', network_f3: 'Location', network_f4: 'Processor capacity',
+    network_f5: 'Demand', network_f6: 'Transport distance', network_f7: 'Processing options',
+    network_organic_eyebrow: 'Organic waste network', network_organic_title: 'Two paths for food, garden, and kitchen waste',
+    network_o1a: 'Organic waste', network_o1b: 'Composting facility', network_o1c: 'Compost', network_o1d: 'Farmers',
+    network_o2a: 'Suitable organic waste', network_o2b: 'Anaerobic digestion', network_o2c: 'Biogas / energy',
+    network_market_eyebrow: 'Recyclable marketplace', network_market_title: 'Supply meets demand, by category',
+    network_m1: 'Plastic', network_m1d: '→ Recyclers',
+    network_m2: 'Paper', network_m2d: '→ Paper-recycling businesses',
+    network_m3: 'Metal', network_m3d: '→ Metal recovery',
+    network_m4: 'E-waste', network_m4d: '→ Authorised e-waste processors',
+
+    // rewards & community page
+    rewards_eyebrow: 'Rewards & Community', rewards_title: 'EcoPoints, real rewards, and friendly competition',
+    rewards_desc: 'Every reward here is stocked by a brand partner — they get visibility, you get useful products, WasteLoop earns a placement fee.',
+    rewards_balance_label: 'Your balance', rewards_earn_more: 'Earn more →',
+    rewards_marketplace_eyebrow: 'Reward marketplace', rewards_marketplace_title: 'Redeem your points',
+    rewards_sponsored_by: 'Sponsored by', rewards_redeem: 'Redeem', rewards_pts: 'pts',
+    rewards_partners_eyebrow: 'Brand partners', rewards_partners_title: 'Who stocks the reward store',
+    rewards_challenge_title: '🥤 Plastic Recovery Challenge',
+    rewards_challenge_desc: 'Sponsored by CircuitBox · Collect verified recyclable plastic this month',
+    rewards_join: 'Join challenge',
+    rewards_tiers_eyebrow: 'Monthly reward system', rewards_tiers_title: 'Your tier, based on verified EcoPoints',
+    rewards_tier1: 'Eco Starter', rewards_tier1_d: '0+ EcoPoints',
+    rewards_tier2: 'Green Hero', rewards_tier2_d: '600+ EcoPoints',
+    rewards_tier3: 'Eco Champion', rewards_tier3_d: '1,500+ EcoPoints',
+    rewards_community_eyebrow: 'Community competitions', rewards_community_title: 'Healthy participation, without the mental load',
+    rewards_comp1_title: '🏢 Apartment A vs Apartment B', rewards_comp2_title: '🎓 College A vs College B',
+    rewards_load_error: "Couldn't load rewards — is the backend running? ({err})",
+    rewards_redeemed_toast: 'Redeemed: {name}',
+    rewards_challenge_toast: 'Joined the Plastic Recovery Challenge · +500 bonus pts on completion',
+
+    // wastewatch page
+    watch_eyebrow: 'WasteWatch', watch_title: 'Report unsafe or illegal dumping — anonymously',
+    watch_desc: 'Take a photo from a safe distance and submit. Your identity is never shared with the receiving authority. Never touch, move, or investigate suspicious material yourself.',
+    watch_photo_label: 'Photo (optional)', watch_photo_btn: '📷 Tap to attach a photo',
+    watch_loc_note: 'Location is attached automatically from your device.',
+    watch_desc_label: 'What did you notice?', watch_desc_placeholder: 'e.g. Drums of unknown liquid dumped behind the market',
+    watch_submit: 'Submit anonymous report', watch_idle: 'Your report status will appear here.',
+    watch_id_label: 'Your report ID',
+    watch_s1_t: 'Received', watch_s1_d: 'Report and location logged just now.',
+    watch_s2_t: 'Under verification', watch_s2_d: 'Local authority is reviewing the report.',
+    watch_s3_t: 'Forwarded', watch_s3_d: 'Passed to the appropriate agency for action.',
+    watch_s4_t: 'Action taken', watch_s4_d: 'Resolution confirmed and logged.',
+    watch_anon_note: 'Your identity stays private — the receiving authority sees only the report and location, never who filed it.',
+    watch_describe_first: 'Describe what you noticed first',
+    watch_submitted_toast: 'Report submitted anonymously · +{points} EcoPoints',
+    watch_backend_error: "Couldn't reach the backend ({err}).",
+
+    // dashboard page
+    dash_eyebrow: 'Dashboard', dash_title: 'Your loop, at a glance', dash_desc: 'Track your EcoPoints, activity, and how your community compares.',
+    dash_points_label: 'EcoPoints balance', dash_pickups_label: 'Pickups requested', dash_reports_label: 'WasteWatch reports',
+    dash_activity_title: 'Recent activity', dash_empty_hist: 'No activity yet — request a pickup to get started.',
+    dash_leaderboard_title: 'Apartment leaderboard', dash_you: 'You', dash_you_household: 'Your household', dash_pts: 'pts',
+    dash_backend_error: "Couldn't reach the backend ({err}).",
+
+    // business model page
+    business_eyebrow: 'Business Model', business_title: 'Built to be a business, not just an app',
+    business_desc: 'Five revenue streams, and rewards that function as the growth engine rather than a cost centre.',
+    business_rev_eyebrow: 'Revenue streams', business_rev_title: 'How WasteLoop earns',
+    business_rev1_t: 'Transaction commissions', business_rev1_d: 'A fee each time waste is matched to a processor.',
+    business_rev2_t: 'B2B subscriptions', business_rev2_d: 'Apartments, colleges, hotels, and companies pay for the software.',
+    business_rev3_t: 'Brand promotions', business_rev3_d: 'Sponsored rewards, challenges, and store placement.',
+    business_rev4_t: 'Analytics', business_rev4_d: 'Reporting and insights for large organisations.',
+    business_rev5_t: 'Collection partnerships', business_rev5_d: 'Revenue share with collection providers.',
+    business_fly_eyebrow: 'The business flywheel', business_fly_title: "Rewards aren't an expense — they're the engine",
+    business_fw1: 'More Users', business_fw2: 'More Waste Collected', business_fw3: 'More Valuable Supply',
+    business_fw4: 'More Processor Transactions', business_fw5: 'More Revenue', business_fw6: 'More Brand Partnerships',
+    business_fw7: 'Better Rewards', business_fw8: 'More User Motivation',
+    business_loop_note: '↻ Every full turn feeds the next — more users leads back to more users.',
+    business_pullquote: '"WasteLoop is an AI-powered circular-economy platform that makes waste disposal effortless for people, turns waste into value for businesses and farmers, and rewards communities for participating."',
+
+    // shared toasts / voice capture
+    common_voice_captured: 'Voice captured',
+    common_mic_unavailable: "Live mic isn't available here — inserting a sample",
+    common_mic_error: 'Mic access unavailable — inserting a sample instead',
+    common_listening: '● Listening…', common_listening_stop: '● Listening… (tap to stop)',
+
+    celebrate_cheer1: 'Nice work!', celebrate_cheer2: 'Every bit counts!', celebrate_cheer3: "You're on a roll!",
+
+    loop_request: 'Request', loop_classify: 'Classify', loop_route: 'Route',
+    loop_value: 'Value', loop_reward: 'Reward', loop_redeem: 'Redeem',
+
+    assistant_pickup_reply: "Sure. I've created your pickup request — {category} waste, routed to {dest} and assigned to {collector}. You've earned {points} EcoPoints. Tracking ID {trackingId}.",
+    assistant_points_reply: 'You currently have {points} EcoPoints.',
+    assistant_rewards_reply: 'With {points} points you can redeem items from the Rewards Store — open that tab to see everything available right now.',
+    assistant_track_found: 'Your last pickup ({label}) is {status}. Tracking ID {id}.',
+    assistant_track_none: "You don't have any pickups in progress yet — want to request one?",
+    assistant_report_reply: "I can file that anonymously through WasteWatch — your identity is never shared with the receiving authority. Open the WasteWatch tab to attach a photo and submit.",
+    assistant_reminder_reply: "Reminder set — I'll notify you before your next scheduled pickup.",
+    assistant_question_reply: 'Organic waste goes to composting or biogas partners. Plastic, paper, and metal go to recycling partners. Electronics go only to certified e-waste processors.',
+    assistant_fallback_reply: 'I can help you request a pickup, check EcoPoints, check rewards, track a collection, report unsafe waste, or set a reminder — what would you like to do?',
+  },
+
+  ta: {
+    nav_home: 'முகப்பு', nav_voice: 'குரல் உதவியாளர்', nav_pickup: 'பிக்கப் கோரிக்கை',
+    nav_network: 'கழிவு நெட்வொர்க்', nav_rewards: 'வெகுமதிகள் & சமூகம்', nav_watch: 'WasteWatch',
+    nav_dash: 'டாஷ்போர்டு', nav_business: 'வணிக மாதிரி', nav_pts: 'புள்ளிகள்',
+    lang_en: 'English', lang_ta: 'தமிழ்', lang_hi: 'हिन्दी',
+
+    home_eyebrow: 'AI-இயங்கும் வட்ட பொருளாதாரம் · இந்தியா-முதன்மை',
+    home_headline: 'கழிவு வெளியே. <em>மதிப்பு உள்ளே.</em>',
+    home_lead: 'குரல் மூலமோ தட்டுவதன் மூலமோ பிக்கப் கேளுங்கள் — WasteLoop-இன் AI அதை வகைப்படுத்தி, சரியான இடத்திற்கு அனுப்பி, உங்களுக்கு வெகுமதி அளிக்கும்.',
+    home_cta_pickup: 'பிக்கப் கோருங்கள் →', home_cta_voice: 'குரல் உதவியாளரை முயற்சிக்கவும்',
+    home_dir_eyebrow: 'ஒரே தளத்தில் அனைத்தும்', home_dir_title: 'பத்து அமைப்புகள், ஒன்றாக செயல்படுகின்றன',
+    home_dir_desc: 'ஒவ்வொரு அட்டையும் தளத்தின் இயங்கும் பகுதியைத் திறக்கும் — இது ஒரு மாதிரி அல்ல, முழு அம்சங்களும்.',
+    home_dir1_t: 'பிக்கப் கோரிக்கைகள்', home_dir1_d: 'குரல் அல்லது படிவம் மூலம் பதிவு செய்யுங்கள்',
+    home_dir2_t: 'AI குரல் உதவியாளர்', home_dir2_d: 'முக்கிய அணுகல் இடைமுகம்',
+    home_dir3_t: 'AI ரூட்டிங் இயந்திரம்', home_dir3_d: 'கழிவை சிறந்த இடத்துடன் பொருத்துகிறது',
+    home_dir4_t: 'இயற்கை கழிவு நெட்வொர்க்', home_dir4_d: 'உரம் மற்றும் பயோகேஸ் பங்குதாரர்கள்',
+    home_dir5_t: 'மறுசுழற்சி சந்தை', home_dir5_d: 'பிளாஸ்டிக், காகிதம், உலோகம், மின் கழிவு',
+    home_dir6_t: 'EcoPoints', home_dir6_d: 'ஒவ்வொரு சரிபார்க்கப்பட்ட பங்களிப்புக்கும் கிடைக்கும்',
+    home_dir7_t: 'வெகுமதி சந்தை', home_dir7_d: 'எழுதுபொருட்கள், மளிகை, மின்னணுவியல்',
+    home_dir8_t: 'பிராண்ட் பங்குதாரர்கள்', home_dir8_d: 'ஸ்பான்சர் செய்யப்பட்ட வெகுமதிகள் மற்றும் சவால்கள்',
+    home_dir9_t: 'சமூக போட்டிகள்', home_dir9_d: 'அபார்ட்மென்ட்கள் மற்றும் கல்லூரிகள் போட்டியிடுகின்றன',
+    home_dir10_t: 'WasteWatch', home_dir10_d: 'அநாமதேய பாதுகாப்பற்ற கழிவு புகார்',
+    home_who_eyebrow: 'யாருக்காக இது கட்டப்பட்டது', home_who_title: 'ஒவ்வொரு பயனருக்கும் — தொழில்நுட்பம் தெரிந்தவர்களுக்கு மட்டுமல்ல',
+    home_lang_tag: '🇮🇳 மொழி', home_lang_title: 'இந்தியா-முதன்மை, ஆங்கிலம் மட்டுமல்ல',
+    home_lang_desc: 'இடைமுகமும் குரல் உதவியாளரும் ஆங்கிலத்திலும் இந்திய மொழிகளிலும் செயல்படும், எனவே ஆங்கிலத்தில் தட்டச்சு செய்ய தயங்குபவர்கள் விலக்கப்பட மாட்டார்கள்.',
+    home_acc_tag: '♿ அணுகல்தன்மை', home_acc_title: 'தட்டுவதற்கும், ஸ்க்ரோல் செய்வதற்கும், தட்டச்சு செய்வதற்கும் பதிலாக பேசுங்கள்',
+    home_acc_desc: 'தட்டச்சு செய்வது, படிப்பது அல்லது வழக்கமான ஆப் இடைமுகங்கள் கடினமாக இருப்பவர்களுக்கு குரல் உதவியாளர் சிறிய பொத்தான்களையும் சிக்கலான வழிசெலுத்தலையும் மாற்றுகிறது.',
+    home_footer_left: 'WasteLoop — ஒரு மென்பொருள்-மட்டும் வட்ட பொருளாதார தளம்.',
+    home_footer_right: 'டெமோ கட்டமைப்பு · ஹேக்கத்தான் மாதிரி',
+
+    voice_eyebrow: 'AI குரல் உதவியாளர்', voice_title: 'ஒரு சாட்பாட் அல்ல — WasteLoop-ஐ பயன்படுத்தும் முக்கிய வழி',
+    voice_desc: 'பிக்கப் கோருங்கள், EcoPoints சரிபார்க்கவும், வெகுமதிகள் சரிபார்க்கவும், சேகரிப்பை கண்காணிக்கவும், கழிவு கேள்விகள் கேளுங்கள், பாதுகாப்பற்ற கழிவை புகாரளிக்கவும், அல்லது நினைவூட்டல்களை அமைக்கவும் — எல்லாம் உங்கள் விருப்ப மொழியில் பேசுவதன் மூலம்.',
+    voice_caps_title: 'நீங்கள் இதைக் கேட்கக்கூடியவை',
+    voice_cap1: 'பிக்கப் கோருங்கள் — உங்கள் கழிவை விவரிக்கவும், அது திட்டமிடப்படும்.',
+    voice_cap2: 'EcoPoints சரிபார்க்கவும் — உங்கள் தற்போதைய இருப்பைக் கேளுங்கள்.',
+    voice_cap3: 'வெகுமதிகள் சரிபார்க்கவும் — இப்போது நீங்கள் மீட்கக்கூடியதைக் கேளுங்கள்.',
+    voice_cap4: 'சேகரிப்பை கண்காணிக்கவும் — நிலுவையிலுள்ள பிக்கப்பின் நிலையைப் பெறுங்கள்.',
+    voice_cap5: 'கழிவு கேள்விகள் கேளுங்கள் — "பிளாஸ்டிக் எங்கே செல்கிறது?" போன்றவை.',
+    voice_cap6: 'பாதுகாப்பற்ற கழிவை புகாரளிக்கவும் — அநாமதேய WasteWatch புகாரைத் தொடங்குங்கள்.',
+    voice_cap7: 'நினைவூட்டலை அமைக்கவும் — உங்கள் அடுத்த பிக்கப்புக்கு முன் நினைவூட்டல் பெறுங்கள்.',
+    voice_try_hint: 'கீழே உள்ள உதாரணத்தை முயற்சிக்கவும் — பின்னர் உங்கள் சொந்தத்தை தட்டச்சு செய்யுங்கள்.',
+    voice_try_tamil: '🇮🇳 தமிழ் உதாரணத்தை முயற்சிக்கவும்',
+    voice_chip_points: 'EcoPoints சரிபார்க்கவும்', voice_chip_rewards: 'வெகுமதிகள் சரிபார்க்கவும்',
+    voice_chip_track: 'சேகரிப்பை கண்காணிக்கவும்', voice_chip_report: 'பாதுகாப்பற்ற கழிவை புகாரளிக்கவும்',
+    voice_chip_reminder: 'நினைவூட்டலை அமைக்கவும்',
+    voice_input_placeholder: 'உங்களுக்கு தேவையானதை தட்டச்சு செய்யவும் அல்லது பேசவும்…', voice_send: 'அனுப்பு',
+    voice_greeting: 'வணக்கம், நான் WasteLoop உதவியாளர். பிக்கப் கோர, உங்கள் புள்ளிகளை சரிபார்க்க, அல்லது இடதுபுறத்தில் உள்ள வேறு எதையும் கேட்கவும்.',
+    voice_backend_error: 'பேக்எண்டை அணுக முடியவில்லை ({err}). http://localhost:3000 இயங்குகிறதா?',
+
+    pickup_eyebrow: 'பிக்கப் கோரிக்கை', pickup_title: 'உங்களிடம் என்ன இருக்கிறது என்று WasteLoop-க்கு சொல்லுங்கள்',
+    pickup_desc: 'உங்கள் சொந்த வார்த்தைகளில் விவரிக்கவும், அல்லது மைக்கைப் பயன்படுத்தவும். வகைப்படுத்தல் பேக்எண்டில் நடைபெறுகிறது.',
+    pickup_desc_label: 'உங்கள் கழிவை விவரிக்கவும்', pickup_desc_placeholder: 'எ.கா. 3 கிலோ காகிதம், சில பிளாஸ்டிக் பாட்டில்கள், மற்றும் ஒரு பழைய மிக்சர் கிரைண்டர்',
+    pickup_multi_hint: 'நீங்கள் ஒன்றுக்கு மேற்பட்ட கழிவு வகைகளை பட்டியலிடலாம் — கமா அல்லது "மற்றும்" மூலம் பிரிக்கவும்.',
+    pickup_mic: '🎙️ பேசுங்கள்', pickup_mic_hint: 'தமிழ், இந்தி, அல்லது ஆங்கிலத்தில் முயற்சிக்கவும்',
+    pickup_qty_label: 'தோராயமான அளவு',
+    pickup_qty1: '1 கிலோவுக்கும் குறைவு', pickup_qty2: '1–5 கிலோ', pickup_qty3: '5–15 கிலோ', pickup_qty4: '15+ கிலோ',
+    pickup_loc_label: 'இட வகை',
+    pickup_address_label: 'உங்கள் முகவரி', pickup_address_placeholder: 'எ.கா. 12, அண்ணா நகர் 2வது தெரு, சென்னை 600040',
+    pickup_address_required: 'உங்கள் பிக்கப் முகவரியை உள்ளிடவும்',
+    pickup_loc1: 'வீடு — அபார்ட்மென்ட்', pickup_loc2: 'உணவகம் / ஹோட்டல்', pickup_loc3: 'கல்லூரி / நிறுவனம்', pickup_loc4: 'அலுவலகம்',
+    pickup_submit: 'பிக்கப் கோருங்கள்',
+    pickup_idle: 'நீங்கள் கோரிக்கையை சமர்ப்பித்தவுடன் உங்கள் AI வகைப்படுத்தல் முடிவு இங்கே தோன்றும்.',
+    pickup_think1: 'உங்கள் விவரிப்பை படிக்கிறது…', pickup_think2: 'அருகிலுள்ள பங்குதாரருடன் பொருத்துகிறது…', pickup_think3: 'EcoPoints கணக்கிடுகிறது…',
+    pickup_confirmed: 'பிக்கப் உறுதி செய்யப்பட்டது', pickup_row_qty: 'அளவு வரம்பு', pickup_row_loc: 'இட வகை', pickup_row_address: 'முகவரி',
+    pickup_row_routed: 'அனுப்பப்பட்டது', pickup_row_collector: 'நியமிக்கப்பட்ட சேகரிப்பாளர்', pickup_row_status: 'நிலை', pickup_status_scheduled: 'திட்டமிடப்பட்டது',
+    pickup_status_out: 'சேகரிப்புக்கு புறப்பட்டது', pickup_status_collected: 'சேகரிக்கப்பட்டது',
+    pickup_simulate_btn: 'நிலை புதுப்பிப்பை உருவகப்படுத்து (டெமோ)',
+    pickup_simulate_note: 'நேரடி GPS கண்காணிப்புக்கு சேகரிப்பாளர் பக்க ஆப் தேவை — இந்த பொத்தான் டெமோவுக்காக நிலை செயல்முறையை உருவகப்படுத்துகிறது.',
+    pickup_points_pending: 'சேகரிப்பாளர் உறுதிப்படுத்த காத்திருக்கிறது',
+    pickup_collector_confirm_btn: '✅ {collector} இடமிருந்து உறுதிப்படுத்தலை உருவகப்படுத்து',
+    pickup_collector_confirm_note: 'நிஜத்தில், புள்ளிகள் வழங்கப்படுவதற்கு முன் சேகரிப்பாளர் தங்கள் ஆப்பில் இருந்து பிக்கப்பை உறுதிப்படுத்துவார் — இந்த பொத்தான் டெமோவுக்காக அந்த உறுதிப்படுத்தலை உருவகப்படுத்துகிறது.',
+    pickup_confirmed_toast: '{collector} பிக்கப்பை உறுதிப்படுத்தினார் · +{points} EcoPoints',
+    pickup_requested_toast: 'பிக்கப் கோரப்பட்டது — சேகரிப்பாளர் உறுதிப்படுத்த காத்திருக்கிறது',
+    pickup_multi_summary: '{count} கழிவு வகைகள் கண்டறியப்பட்டன — ஒவ்வொன்றும் அதன் சொந்த சேகரிப்பாளருக்கு அனுப்பப்படும்',
+    pickup_confirm_all_btn: '✅ அனைத்து பிக்கப்களுக்கும் உறுதிப்படுத்தலை உருவகப்படுத்து',
+    pickup_rates_eyebrow: 'EcoPoints விகிதங்கள்', pickup_rates_title: '1 கிலோ கழிவுக்கு நீங்கள் பெறும் EcoPoints, வகை வாரியாக',
+    pickup_rates_desc: 'சேகரிப்பாளர் உறுதிப்படுத்தியவுடன் வழங்கப்படும்.',
+    pickup_rate_unit: '1 கிலோவுக்கு புள்ளிகள்',
+    pickup_tracking: 'கண்காணிப்பு ஐடி', pickup_describe_first: 'முதலில் உங்கள் கழிவை விவரிக்கவும்',
+    pickup_backend_error: 'பேக்எண்டை அணுக முடியவில்லை ({err})',
+    pickup_scheduled_toast: 'பிக்கப் திட்டமிடப்பட்டது · +{points} EcoPoints',
+
+    network_eyebrow: 'கழிவு நெட்வொர்க்', network_title: 'கழிவு → குப்பைத்தொட்டி அல்ல. கழிவு → அதிக மதிப்புள்ள இடம்.',
+    network_desc: 'WasteLoop-க்கு லாரிகள், பண்ணைகள், அல்லது மறுசுழற்சி ஆலைகள் இல்லை. இது கழிவு உற்பத்தியாளர்களுக்கும் சரிபார்க்கப்பட்ட செயலாக்க பங்குதாரர்களுக்கும் இடையிலான டிஜிட்டல் இணைப்பு.',
+    network_routing_eyebrow: 'AI ரூட்டிங் இயந்திரம்', network_routing_title: 'ஒரு பங்குதாரரை பொருத்துவதற்கு முன் இது எதை கருதுகிறது',
+    network_f1: 'கழிவு வகை', network_f2: 'அளவு', network_f3: 'இடம்', network_f4: 'செயலாக்க திறன்',
+    network_f5: 'தேவை', network_f6: 'போக்குவரத்து தூரம்', network_f7: 'செயலாக்க விருப்பங்கள்',
+    network_organic_eyebrow: 'இயற்கை கழிவு நெட்வொர்க்', network_organic_title: 'உணவு, தோட்டம் மற்றும் சமையலறை கழிவுக்கான இரண்டு பாதைகள்',
+    network_o1a: 'இயற்கை கழிவு', network_o1b: 'உரமாக்கும் வசதி', network_o1c: 'உரம்', network_o1d: 'விவசாயிகள்',
+    network_o2a: 'ஏற்ற இயற்கை கழிவு', network_o2b: 'காற்றில்லா ஜீரணம்', network_o2c: 'பயோகேஸ் / ஆற்றல்',
+    network_market_eyebrow: 'மறுசுழற்சி சந்தை', network_market_title: 'வகை வாரியாக விநியோகமும் தேவையும் சந்திக்கின்றன',
+    network_m1: 'பிளாஸ்டிக்', network_m1d: '→ மறுசுழற்சியாளர்கள்',
+    network_m2: 'காகிதம்', network_m2d: '→ காகித மறுசுழற்சி நிறுவனங்கள்',
+    network_m3: 'உலோகம்', network_m3d: '→ உலோக மீட்பு',
+    network_m4: 'மின் கழிவு', network_m4d: '→ அங்கீகரிக்கப்பட்ட மின் கழிவு செயலாக்குபவர்கள்',
+
+    rewards_eyebrow: 'வெகுமதிகள் & சமூகம்', rewards_title: 'EcoPoints, உண்மையான வெகுமதிகள், நட்பு போட்டி',
+    rewards_desc: 'இங்குள்ள ஒவ்வொரு வெகுமதியும் ஒரு பிராண்ட் பங்குதாரரால் வழங்கப்படுகிறது.',
+    rewards_balance_label: 'உங்கள் இருப்பு', rewards_earn_more: 'மேலும் சம்பாதிக்க →',
+    rewards_marketplace_eyebrow: 'வெகுமதி சந்தை', rewards_marketplace_title: 'உங்கள் புள்ளிகளை மீட்டெடுக்கவும்',
+    rewards_sponsored_by: 'வழங்குபவர்', rewards_redeem: 'மீட்டெடு', rewards_pts: 'புள்ளிகள்',
+    rewards_partners_eyebrow: 'பிராண்ட் பங்குதாரர்கள்', rewards_partners_title: 'வெகுமதி கடையை யார் வழங்குகிறார்கள்',
+    rewards_challenge_title: '🥤 பிளாஸ்டிக் மீட்பு சவால்',
+    rewards_challenge_desc: 'CircuitBox வழங்குகிறது · இந்த மாதம் சரிபார்க்கப்பட்ட மறுசுழற்சி பிளாஸ்டிக்கை சேகரிக்கவும்',
+    rewards_join: 'சவாலில் சேரவும்',
+    rewards_tiers_eyebrow: 'மாதாந்திர வெகுமதி முறை', rewards_tiers_title: 'சரிபார்க்கப்பட்ட EcoPoints அடிப்படையில் உங்கள் நிலை',
+    rewards_tier1: 'Eco Starter', rewards_tier1_d: '0+ EcoPoints',
+    rewards_tier2: 'Green Hero', rewards_tier2_d: '600+ EcoPoints',
+    rewards_tier3: 'Eco Champion', rewards_tier3_d: '1,500+ EcoPoints',
+    rewards_community_eyebrow: 'சமூக போட்டிகள்', rewards_community_title: 'மன சுமை இல்லாமல் ஆரோக்கியமான பங்கேற்பு',
+    rewards_comp1_title: '🏢 அபார்ட்மென்ட் A vs அபார்ட்மென்ட் B', rewards_comp2_title: '🎓 கல்லூரி A vs கல்லூரி B',
+    rewards_load_error: 'வெகுமதிகளை ஏற்ற முடியவில்லை ({err})',
+    rewards_redeemed_toast: 'மீட்டெடுக்கப்பட்டது: {name}',
+    rewards_challenge_toast: 'பிளாஸ்டிக் மீட்பு சவாலில் சேர்ந்தது · +500 போனஸ் புள்ளிகள்',
+
+    watch_eyebrow: 'WasteWatch', watch_title: 'பாதுகாப்பற்ற அல்லது சட்டவிரோத கழிவை அநாமதேயமாக புகாரளிக்கவும்',
+    watch_desc: 'பாதுகாப்பான தூரத்தில் இருந்து புகைப்படம் எடுத்து சமர்ப்பிக்கவும். உங்கள் அடையாளம் பெறும் அதிகாரிகளுடன் ஒருபோதும் பகிரப்படாது.',
+    watch_photo_label: 'புகைப்படம் (விருப்பத்தேர்வு)', watch_photo_btn: '📷 புகைப்படத்தை இணைக்க தட்டவும்',
+    watch_loc_note: 'உங்கள் சாதனத்திலிருந்து இடம் தானாக இணைக்கப்படும்.',
+    watch_desc_label: 'நீங்கள் என்ன கவனித்தீர்கள்?', watch_desc_placeholder: 'எ.கா. சந்தைக்குப் பின்னால் கொட்டப்பட்ட தெரியாத திரவ டிரம்கள்',
+    watch_submit: 'அநாமதேய புகாரை சமர்ப்பிக்கவும்', watch_idle: 'உங்கள் புகார் நிலை இங்கே தோன்றும்.',
+    watch_id_label: 'உங்கள் புகார் ஐடி',
+    watch_s1_t: 'பெறப்பட்டது', watch_s1_d: 'புகாரும் இடமும் இப்போது பதிவு செய்யப்பட்டது.',
+    watch_s2_t: 'சரிபார்ப்பில் உள்ளது', watch_s2_d: 'உள்ளூர் அதிகாரி புகாரை மதிப்பாய்வு செய்கிறார்.',
+    watch_s3_t: 'அனுப்பப்பட்டது', watch_s3_d: 'நடவடிக்கைக்காக பொருத்தமான நிறுவனத்திற்கு அனுப்பப்பட்டது.',
+    watch_s4_t: 'நடவடிக்கை எடுக்கப்பட்டது', watch_s4_d: 'தீர்வு உறுதிசெய்யப்பட்டு பதிவு செய்யப்பட்டது.',
+    watch_anon_note: 'உங்கள் அடையாளம் தனிப்பட்டதாகவே இருக்கும் — யார் தாக்கல் செய்தார்கள் என்பதை அதிகாரிகள் ஒருபோதும் காண மாட்டார்கள்.',
+    watch_describe_first: 'முதலில் நீங்கள் கவனித்ததை விவரிக்கவும்',
+    watch_submitted_toast: 'புகார் அநாமதேயமாக சமர்ப்பிக்கப்பட்டது · +{points} EcoPoints',
+    watch_backend_error: 'பேக்எண்டை அணுக முடியவில்லை ({err})',
+
+    dash_eyebrow: 'டாஷ்போர்டு', dash_title: 'உங்கள் லூப், ஒரு பார்வையில்', dash_desc: 'உங்கள் EcoPoints, செயல்பாடு, மற்றும் உங்கள் சமூகம் எவ்வாறு ஒப்பிடுகிறது என்பதைக் கண்காணிக்கவும்.',
+    dash_points_label: 'EcoPoints இருப்பு', dash_pickups_label: 'கோரப்பட்ட பிக்கப்கள்', dash_reports_label: 'WasteWatch புகார்கள்',
+    dash_activity_title: 'சமீபத்திய செயல்பாடு', dash_empty_hist: 'இதுவரை செயல்பாடு இல்லை — தொடங்க ஒரு பிக்கப்பை கோருங்கள்.',
+    dash_leaderboard_title: 'அபார்ட்மென்ட் லீடர்போர்டு', dash_you: 'நீங்கள்', dash_you_household: 'உங்கள் வீடு', dash_pts: 'புள்ளிகள்',
+    dash_backend_error: 'பேக்எண்டை அணுக முடியவில்லை ({err})',
+
+    business_eyebrow: 'வணிக மாதிரி', business_title: 'ஒரு ஆப் மட்டுமல்ல, ஒரு வணிகமாக கட்டப்பட்டது',
+    business_desc: 'ஐந்து வருவாய் ஆதாரங்கள், மற்றும் செலவு மையமாக அல்லாமல் வளர்ச்சி இயந்திரமாக செயல்படும் வெகுமதிகள்.',
+    business_rev_eyebrow: 'வருவாய் ஆதாரங்கள்', business_rev_title: 'WasteLoop எவ்வாறு சம்பாதிக்கிறது',
+    business_rev1_t: 'பரிவர்த்தனை கமிஷன்கள்', business_rev1_d: 'கழிவு ஒரு செயலாக்குபவருடன் பொருந்தும் ஒவ்வொரு முறையும் கட்டணம்.',
+    business_rev2_t: 'B2B சந்தாக்கள்', business_rev2_d: 'அபார்ட்மென்ட்கள், கல்லூரிகள், ஹோட்டல்கள் மற்றும் நிறுவனங்கள் மென்பொருளுக்கு பணம் செலுத்துகின்றன.',
+    business_rev3_t: 'பிராண்ட் விளம்பரங்கள்', business_rev3_d: 'ஸ்பான்சர் செய்யப்பட்ட வெகுமதிகள், சவால்கள் மற்றும் கடை இடம்.',
+    business_rev4_t: 'பகுப்பாய்வு', business_rev4_d: 'பெரிய நிறுவனங்களுக்கான அறிக்கை மற்றும் நுண்ணறிவு.',
+    business_rev5_t: 'சேகரிப்பு கூட்டாண்மைகள்', business_rev5_d: 'சேகரிப்பு வழங்குநர்களுடன் வருவாய் பகிர்வு.',
+    business_fly_eyebrow: 'வணிக ஃப்ளைவீல்', business_fly_title: 'வெகுமதிகள் ஒரு செலவு அல்ல — அவை இயந்திரம்',
+    business_fw1: 'அதிக பயனர்கள்', business_fw2: 'அதிக கழிவு சேகரிப்பு', business_fw3: 'அதிக மதிப்புள்ள விநியோகம்',
+    business_fw4: 'அதிக செயலாக்குபவர் பரிவர்த்தனைகள்', business_fw5: 'அதிக வருவாய்', business_fw6: 'அதிக பிராண்ட் கூட்டாண்மைகள்',
+    business_fw7: 'சிறந்த வெகுமதிகள்', business_fw8: 'அதிக பயனர் ஊக்கம்',
+    business_loop_note: '↻ ஒவ்வொரு முழு சுழற்சியும் அடுத்ததை ஊட்டுகிறது — அதிக பயனர்கள் மீண்டும் அதிக பயனர்களுக்கு வழிவகுக்கும்.',
+    business_pullquote: '"WasteLoop என்பது AI-இயங்கும் வட்ட பொருளாதார தளம், இது மக்களுக்கு கழிவு அகற்றலை எளிதாக்குகிறது, வணிகங்களுக்கும் விவசாயிகளுக்கும் கழிவை மதிப்பாக மாற்றுகிறது, மற்றும் பங்கேற்பதற்காக சமூகங்களுக்கு வெகுமதி அளிக்கிறது."',
+
+    common_voice_captured: 'குரல் பதிவு செய்யப்பட்டது',
+    common_mic_unavailable: 'இங்கு நேரடி மைக் கிடைக்கவில்லை — ஒரு உதாரணத்தை செருகுகிறது',
+    common_mic_error: 'மைக் அணுகல் கிடைக்கவில்லை — ஒரு உதாரணத்தை செருகுகிறது',
+    common_listening: '● கேட்கிறது…', common_listening_stop: '● கேட்கிறது… (நிறுத்த தட்டவும்)',
+
+    celebrate_cheer1: 'அருமை!', celebrate_cheer2: 'ஒவ்வொரு பங்களிப்பும் முக்கியம்!', celebrate_cheer3: 'நீங்கள் சூப்பராக செல்கிறீர்கள்!',
+
+    loop_request: 'கோரிக்கை', loop_classify: 'வகைப்படுத்து', loop_route: 'வழிசெலுத்து',
+    loop_value: 'மதிப்பு', loop_reward: 'வெகுமதி', loop_redeem: 'மீட்டெடு',
+
+    assistant_pickup_reply: 'சரி. உங்கள் பிக்கப் கோரிக்கை உருவாக்கப்பட்டது — {category} கழிவு, {dest}-க்கு அனுப்பப்பட்டு {collector}-க்கு ஒதுக்கப்பட்டது. நீங்கள் {points} EcoPoints சம்பாதித்தீர்கள். கண்காணிப்பு ஐடி {trackingId}.',
+    assistant_points_reply: 'உங்களிடம் தற்போது {points} EcoPoints உள்ளது.',
+    assistant_rewards_reply: '{points} புள்ளிகளுடன் நீங்கள் வெகுமதி கடையில் இருந்து பொருட்களை மீட்டெடுக்கலாம் — இப்போது கிடைப்பவற்றைப் பார்க்க அந்த தாவலைத் திறக்கவும்.',
+    assistant_track_found: 'உங்கள் கடைசி பிக்கப் ({label}) {status} நிலையில் உள்ளது. கண்காணிப்பு ஐடி {id}.',
+    assistant_track_none: 'உங்களிடம் இதுவரை நடைபெறும் பிக்கப்கள் இல்லை — ஒன்றை கோர விரும்புகிறீர்களா?',
+    assistant_report_reply: 'அதை WasteWatch மூலம் அநாமதேயமாக தாக்கல் செய்யலாம் — உங்கள் அடையாளம் ஒருபோதும் பகிரப்படாது. புகைப்படத்தை இணைத்து சமர்ப்பிக்க WasteWatch தாவலைத் திறக்கவும்.',
+    assistant_reminder_reply: 'நினைவூட்டல் அமைக்கப்பட்டது — உங்கள் அடுத்த திட்டமிடப்பட்ட பிக்கப்புக்கு முன் நான் உங்களுக்குத் தெரிவிப்பேன்.',
+    assistant_question_reply: 'இயற்கை கழிவு உரமாக்கல் அல்லது பயோகேஸ் பங்குதாரர்களுக்குச் செல்கிறது. பிளாஸ்டிக், காகிதம், உலோகம் மறுசுழற்சி பங்குதாரர்களுக்குச் செல்கிறது. மின்னணுவியல் சான்றளிக்கப்பட்ட மின் கழிவு செயலாக்குபவர்களுக்கு மட்டுமே செல்கிறது.',
+    assistant_fallback_reply: 'பிக்கப் கோர, EcoPoints சரிபார்க்க, வெகுமதிகள் சரிபார்க்க, சேகரிப்பை கண்காணிக்க, பாதுகாப்பற்ற கழிவை புகாரளிக்க, அல்லது நினைவூட்டலை அமைக்க நான் உதவ முடியும் — நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்?',
+  },
+
+  hi: {
+    nav_home: 'होम', nav_voice: 'वॉइस असिस्टेंट', nav_pickup: 'पिकअप अनुरोध',
+    nav_network: 'वेस्ट नेटवर्क', nav_rewards: 'रिवॉर्ड्स और समुदाय', nav_watch: 'WasteWatch',
+    nav_dash: 'डैशबोर्ड', nav_business: 'बिज़नेस मॉडल', nav_pts: 'अंक',
+    lang_en: 'English', lang_ta: 'தமிழ்', lang_hi: 'हिन्दी',
+
+    home_eyebrow: 'AI-संचालित सर्कुलर इकॉनमी · इंडिया-फर्स्ट',
+    home_headline: 'कचरा बाहर। <em>मूल्य भीतर।</em>',
+    home_lead: 'आवाज़ या टैप से पिकअप मांगें — WasteLoop का AI उसे वर्गीकृत कर, सही जगह भेजकर, आपको पुरस्कृत करता है।',
+    home_cta_pickup: 'पिकअप का अनुरोध करें →', home_cta_voice: 'वॉइस असिस्टेंट आज़माएं',
+    home_dir_eyebrow: 'एक ही मंच पर सब कुछ', home_dir_title: 'दस सिस्टम, एक साथ काम करते हुए',
+    home_dir_desc: 'हर कार्ड प्लेटफ़ॉर्म के काम करने वाले हिस्से को खोलता है — यह एक मॉकअप नहीं है।',
+    home_dir1_t: 'पिकअप अनुरोध', home_dir1_d: 'आवाज़ या फ़ॉर्म से कचरा दर्ज करें',
+    home_dir2_t: 'AI वॉइस असिस्टेंट', home_dir2_d: 'मुख्य एक्सेसिबिलिटी इंटरफ़ेस',
+    home_dir3_t: 'AI रूटिंग इंजन', home_dir3_d: 'कचरे को सबसे अच्छे गंतव्य से मिलाता है',
+    home_dir4_t: 'ऑर्गेनिक वेस्ट नेटवर्क', home_dir4_d: 'कंपोस्ट और बायोगैस पार्टनर',
+    home_dir5_t: 'रीसाइकिल मार्केटप्लेस', home_dir5_d: 'प्लास्टिक, कागज़, धातु, ई-वेस्ट',
+    home_dir6_t: 'EcoPoints', home_dir6_d: 'हर सत्यापित योगदान पर मिलते हैं',
+    home_dir7_t: 'रिवॉर्ड मार्केटप्लेस', home_dir7_d: 'स्टेशनरी, ग्रॉसरी, इलेक्ट्रॉनिक्स',
+    home_dir8_t: 'ब्रांड पार्टनर', home_dir8_d: 'प्रायोजित रिवॉर्ड्स और चैलेंज',
+    home_dir9_t: 'सामुदायिक प्रतियोगिताएं', home_dir9_d: 'अपार्टमेंट और कॉलेज आपस में मुकाबला करते हैं',
+    home_dir10_t: 'WasteWatch', home_dir10_d: 'गुमनाम असुरक्षित-कचरा रिपोर्टिंग',
+    home_who_eyebrow: 'यह किसके लिए बना है', home_who_title: 'हर उपयोगकर्ता के लिए, सिर्फ़ तकनीक-सहज लोगों के लिए नहीं',
+    home_lang_tag: '🇮🇳 भाषा', home_lang_title: 'इंडिया-फर्स्ट, सिर्फ़ अंग्रेज़ी नहीं',
+    home_lang_desc: 'इंटरफ़ेस और वॉइस असिस्टेंट अंग्रेज़ी और भारतीय भाषाओं में काम करते हैं, ताकि अंग्रेज़ी में टाइप करने में असहज लोग कभी पीछे न छूटें।',
+    home_acc_tag: '♿ एक्सेसिबिलिटी', home_acc_title: 'टैप, स्क्रॉल और टाइप करने के बजाय बोलें',
+    home_acc_desc: 'जिन्हें टाइप करना, पढ़ना, या सामान्य ऐप इंटरफ़ेस मुश्किल लगते हैं, उनके लिए वॉइस असिस्टेंट छोटे बटन और जटिल नेविगेशन की जगह लेता है।',
+    home_footer_left: 'WasteLoop — एक सॉफ़्टवेयर-ओनली सर्कुलर-इकॉनमी प्लेटफ़ॉर्म।',
+    home_footer_right: 'डेमो बिल्ड · हैकाथॉन प्रोटोटाइप',
+
+    voice_eyebrow: 'AI वॉइस असिस्टेंट', voice_title: 'यह चैटबॉट नहीं है — WasteLoop इस्तेमाल करने का मुख्य तरीका',
+    voice_desc: 'पिकअप का अनुरोध करें, EcoPoints जांचें, रिवॉर्ड्स जांचें, कलेक्शन ट्रैक करें, कचरे से जुड़े सवाल पूछें, असुरक्षित कचरे की रिपोर्ट करें, या रिमाइंडर सेट करें — सब कुछ बोलकर, अपनी पसंदीदा भाषा में।',
+    voice_caps_title: 'आप इससे क्या करवा सकते हैं',
+    voice_cap1: 'पिकअप का अनुरोध करें — अपना कचरा बताएं और यह शेड्यूल हो जाएगा।',
+    voice_cap2: 'EcoPoints जांचें — अपना मौजूदा बैलेंस सुनें।',
+    voice_cap3: 'रिवॉर्ड्स जांचें — अभी क्या रिडीम कर सकते हैं सुनें।',
+    voice_cap4: 'कलेक्शन ट्रैक करें — लंबित पिकअप की स्थिति पाएं।',
+    voice_cap5: 'कचरे से जुड़े सवाल पूछें — जैसे "प्लास्टिक कहाँ जाता है?"',
+    voice_cap6: 'असुरक्षित कचरे की रिपोर्ट करें — गुमनाम WasteWatch रिपोर्ट शुरू करें।',
+    voice_cap7: 'रिमाइंडर सेट करें — अगले पिकअप से पहले याद दिलाया जाए।',
+    voice_try_hint: 'नीचे दिया उदाहरण आज़माएं — फिर अपना खुद टाइप करें।',
+    voice_try_tamil: '🇮🇳 तमिल उदाहरण आज़माएं',
+    voice_chip_points: 'EcoPoints जांचें', voice_chip_rewards: 'रिवॉर्ड्स जांचें',
+    voice_chip_track: 'कलेक्शन ट्रैक करें', voice_chip_report: 'असुरक्षित कचरे की रिपोर्ट करें',
+    voice_chip_reminder: 'रिमाइंडर सेट करें',
+    voice_input_placeholder: 'जो चाहिए वह टाइप करें या बोलें…', voice_send: 'भेजें',
+    voice_greeting: 'नमस्ते, मैं WasteLoop असिस्टेंट हूं। मुझसे पिकअप का अनुरोध करने, अपने अंक जांचने, या बाईं ओर कुछ भी पूछें।',
+    voice_backend_error: 'बैकएंड तक नहीं पहुंच सके ({err})। क्या यह http://localhost:3000 पर चल रहा है?',
+
+    pickup_eyebrow: 'पिकअप अनुरोध', pickup_title: 'WasteLoop को बताएं आपके पास क्या है',
+    pickup_desc: 'अपने शब्दों में बताएं, या माइक इस्तेमाल करें। वर्गीकरण बैकएंड पर होता है।',
+    pickup_desc_label: 'अपना कचरा बताएं', pickup_desc_placeholder: 'जैसे 3 किलो कागज़, कुछ प्लास्टिक की बोतलें, और एक पुराना मिक्सर ग्राइंडर',
+    pickup_multi_hint: 'आप एक से ज़्यादा तरह का कचरा बता सकते हैं — कॉमा या "और" से अलग करें।',
+    pickup_mic: '🎙️ बोलकर बताएं', pickup_mic_hint: 'तमिल, हिंदी, या अंग्रेज़ी में आज़माएं',
+    pickup_qty_label: 'अनुमानित मात्रा',
+    pickup_qty1: '1 किलो से कम', pickup_qty2: '1–5 किलो', pickup_qty3: '5–15 किलो', pickup_qty4: '15+ किलो',
+    pickup_loc_label: 'स्थान प्रकार',
+    pickup_address_label: 'आपका पता', pickup_address_placeholder: 'जैसे 12, अन्ना नगर 2री स्ट्रीट, चेन्नई 600040',
+    pickup_address_required: 'कृपया अपना पिकअप पता दर्ज करें',
+    pickup_loc1: 'घर — अपार्टमेंट', pickup_loc2: 'रेस्टोरेंट / होटल', pickup_loc3: 'कॉलेज / संस्थान', pickup_loc4: 'ऑफ़िस',
+    pickup_submit: 'पिकअप का अनुरोध करें',
+    pickup_idle: 'अनुरोध सबमिट करने के बाद आपका AI वर्गीकरण परिणाम यहां दिखेगा।',
+    pickup_think1: 'आपका विवरण पढ़ रहे हैं…', pickup_think2: 'निकटतम पार्टनर से मिला रहे हैं…', pickup_think3: 'EcoPoints की गणना कर रहे हैं…',
+    pickup_confirmed: 'पिकअप की पुष्टि हुई', pickup_row_qty: 'मात्रा श्रेणी', pickup_row_loc: 'स्थान प्रकार', pickup_row_address: 'पता',
+    pickup_row_routed: 'भेजा गया', pickup_row_collector: 'नियुक्त कलेक्टर', pickup_row_status: 'स्थिति', pickup_status_scheduled: 'शेड्यूल्ड',
+    pickup_status_out: 'संग्रहण के लिए निकला', pickup_status_collected: 'एकत्र किया गया',
+    pickup_simulate_btn: 'स्थिति अपडेट सिम्युलेट करें (डेमो)',
+    pickup_simulate_note: 'लाइव GPS ट्रैकिंग के लिए कलेक्टर-साइड ऐप चाहिए — यह बटन डेमो के लिए स्थिति प्रक्रिया को सिम्युलेट करता है।',
+    pickup_points_pending: 'कलेक्टर की पुष्टि का इंतज़ार',
+    pickup_collector_confirm_btn: '✅ {collector} की ओर से पुष्टि सिम्युलेट करें',
+    pickup_collector_confirm_note: 'असल में, अंक जमा होने से पहले कलेक्टर अपने ऐप से पिकअप की पुष्टि करता है — यह बटन डेमो के लिए उस पुष्टि को सिम्युलेट करता है।',
+    pickup_confirmed_toast: '{collector} ने पिकअप की पुष्टि की · +{points} EcoPoints',
+    pickup_requested_toast: 'पिकअप का अनुरोध किया गया — कलेक्टर की पुष्टि का इंतज़ार',
+    pickup_multi_summary: '{count} तरह के कचरे मिले — हर एक अपने अलग कलेक्टर को भेजा गया',
+    pickup_confirm_all_btn: '✅ सभी पिकअप के लिए पुष्टि सिम्युलेट करें',
+    pickup_rates_eyebrow: 'EcoPoints दरें', pickup_rates_title: '1 किलो कचरे पर आपको कितने EcoPoints मिलते हैं, प्रकार अनुसार',
+    pickup_rates_desc: 'कलेक्टर की पुष्टि के बाद जमा होते हैं।',
+    pickup_rate_unit: '1 किलो के लिए अंक',
+    pickup_tracking: 'ट्रैकिंग आईडी', pickup_describe_first: 'पहले अपना कचरा बताएं',
+    pickup_backend_error: 'बैकएंड तक नहीं पहुंच सके — क्या यह http://localhost:3000 पर चल रहा है? ({err})',
+    pickup_scheduled_toast: 'पिकअप शेड्यूल हुआ · +{points} EcoPoints',
+
+    network_eyebrow: 'वेस्ट नेटवर्क', network_title: 'कचरा → लैंडफिल नहीं। कचरा → सबसे मूल्यवान गंतव्य।',
+    network_desc: 'WasteLoop के पास ट्रक, फ़ार्म, या रीसाइक्लिंग प्लांट नहीं हैं। यह कचरा उत्पन्न करने वालों और सत्यापित प्रोसेसिंग पार्टनर के बीच डिजिटल कनेक्शन है।',
+    network_routing_eyebrow: 'AI रूटिंग इंजन', network_routing_title: 'पार्टनर से मिलाने से पहले यह क्या देखता है',
+    network_f1: 'कचरे की श्रेणी', network_f2: 'मात्रा', network_f3: 'स्थान', network_f4: 'प्रोसेसर क्षमता',
+    network_f5: 'मांग', network_f6: 'परिवहन दूरी', network_f7: 'प्रोसेसिंग विकल्प',
+    network_organic_eyebrow: 'ऑर्गेनिक वेस्ट नेटवर्क', network_organic_title: 'भोजन, बगीचे और रसोई के कचरे के लिए दो रास्ते',
+    network_o1a: 'ऑर्गेनिक कचरा', network_o1b: 'कंपोस्टिंग सुविधा', network_o1c: 'कंपोस्ट', network_o1d: 'किसान',
+    network_o2a: 'उपयुक्त ऑर्गेनिक कचरा', network_o2b: 'एनारोबिक डाइजेशन', network_o2c: 'बायोगैस / ऊर्जा',
+    network_market_eyebrow: 'रीसाइकिल मार्केटप्लेस', network_market_title: 'श्रेणी अनुसार आपूर्ति और मांग मिलते हैं',
+    network_m1: 'प्लास्टिक', network_m1d: '→ रीसाइक्लर्स',
+    network_m2: 'कागज़', network_m2d: '→ पेपर-रीसाइक्लिंग व्यवसाय',
+    network_m3: 'धातु', network_m3d: '→ मेटल रिकवरी',
+    network_m4: 'ई-वेस्ट', network_m4d: '→ अधिकृत ई-वेस्ट प्रोसेसर',
+
+    rewards_eyebrow: 'रिवॉर्ड्स और समुदाय', rewards_title: 'EcoPoints, असली रिवॉर्ड्स, और दोस्ताना प्रतिस्पर्धा',
+    rewards_desc: 'यहां हर रिवॉर्ड एक ब्रांड पार्टनर द्वारा दिया जाता है।',
+    rewards_balance_label: 'आपका बैलेंस', rewards_earn_more: 'और कमाएं →',
+    rewards_marketplace_eyebrow: 'रिवॉर्ड मार्केटप्लेस', rewards_marketplace_title: 'अपने अंक रिडीम करें',
+    rewards_sponsored_by: 'प्रायोजक', rewards_redeem: 'रिडीम करें', rewards_pts: 'अंक',
+    rewards_partners_eyebrow: 'ब्रांड पार्टनर', rewards_partners_title: 'रिवॉर्ड स्टोर कौन भरता है',
+    rewards_challenge_title: '🥤 प्लास्टिक रिकवरी चैलेंज',
+    rewards_challenge_desc: 'CircuitBox द्वारा प्रायोजित · इस महीने सत्यापित रीसाइकिल प्लास्टिक इकट्ठा करें',
+    rewards_join: 'चैलेंज में शामिल हों',
+    rewards_tiers_eyebrow: 'मासिक रिवॉर्ड सिस्टम', rewards_tiers_title: 'सत्यापित EcoPoints के आधार पर आपका स्तर',
+    rewards_tier1: 'Eco Starter', rewards_tier1_d: '0+ EcoPoints',
+    rewards_tier2: 'Green Hero', rewards_tier2_d: '600+ EcoPoints',
+    rewards_tier3: 'Eco Champion', rewards_tier3_d: '1,500+ EcoPoints',
+    rewards_community_eyebrow: 'सामुदायिक प्रतियोगिताएं', rewards_community_title: 'बिना मानसिक बोझ के स्वस्थ भागीदारी',
+    rewards_comp1_title: '🏢 अपार्टमेंट A बनाम अपार्टमेंट B', rewards_comp2_title: '🎓 कॉलेज A बनाम कॉलेज B',
+    rewards_load_error: 'रिवॉर्ड्स लोड नहीं हो सके ({err})',
+    rewards_redeemed_toast: 'रिडीम किया गया: {name}',
+    rewards_challenge_toast: 'प्लास्टिक रिकवरी चैलेंज में शामिल हुए · पूरा होने पर +500 बोनस अंक',
+
+    watch_eyebrow: 'WasteWatch', watch_title: 'असुरक्षित या अवैध डंपिंग की गुमनाम रिपोर्ट करें',
+    watch_desc: 'सुरक्षित दूरी से फ़ोटो लें और सबमिट करें। आपकी पहचान प्राप्तकर्ता प्राधिकरण के साथ कभी साझा नहीं की जाती।',
+    watch_photo_label: 'फ़ोटो (वैकल्पिक)', watch_photo_btn: '📷 फ़ोटो जोड़ने के लिए टैप करें',
+    watch_loc_note: 'आपके डिवाइस से स्थान अपने आप जुड़ जाता है।',
+    watch_desc_label: 'आपने क्या देखा?', watch_desc_placeholder: 'जैसे बाज़ार के पीछे फेंके गए अज्ञात तरल के ड्रम',
+    watch_submit: 'गुमनाम रिपोर्ट सबमिट करें', watch_idle: 'आपकी रिपोर्ट की स्थिति यहां दिखेगी।',
+    watch_id_label: 'आपकी रिपोर्ट आईडी',
+    watch_s1_t: 'प्राप्त हुई', watch_s1_d: 'रिपोर्ट और स्थान अभी दर्ज किए गए।',
+    watch_s2_t: 'सत्यापन में', watch_s2_d: 'स्थानीय प्राधिकरण रिपोर्ट की समीक्षा कर रहा है।',
+    watch_s3_t: 'आगे भेजी गई', watch_s3_d: 'कार्रवाई के लिए उपयुक्त एजेंसी को भेज दिया गया।',
+    watch_s4_t: 'कार्रवाई हुई', watch_s4_d: 'समाधान की पुष्टि होकर दर्ज कर लिया गया।',
+    watch_anon_note: 'आपकी पहचान निजी रहती है — प्राधिकरण को कभी पता नहीं चलता कि किसने रिपोर्ट दर्ज की।',
+    watch_describe_first: 'पहले बताएं कि आपने क्या देखा',
+    watch_submitted_toast: 'रिपोर्ट गुमनाम रूप से सबमिट हुई · +{points} EcoPoints',
+    watch_backend_error: 'बैकएंड तक नहीं पहुंच सके ({err})',
+
+    dash_eyebrow: 'डैशबोर्ड', dash_title: 'आपका लूप, एक नज़र में', dash_desc: 'अपने EcoPoints, गतिविधि, और अपने समुदाय की तुलना ट्रैक करें।',
+    dash_points_label: 'EcoPoints बैलेंस', dash_pickups_label: 'अनुरोधित पिकअप', dash_reports_label: 'WasteWatch रिपोर्ट्स',
+    dash_activity_title: 'हाल की गतिविधि', dash_empty_hist: 'अभी तक कोई गतिविधि नहीं — शुरू करने के लिए पिकअप का अनुरोध करें।',
+    dash_leaderboard_title: 'अपार्टमेंट लीडरबोर्ड', dash_you: 'आप', dash_you_household: 'आपका घर', dash_pts: 'अंक',
+    dash_backend_error: 'बैकएंड तक नहीं पहुंच सके ({err})',
+
+    business_eyebrow: 'बिज़नेस मॉडल', business_title: 'सिर्फ़ ऐप नहीं, एक बिज़नेस बनने के लिए बनाया गया',
+    business_desc: 'पांच राजस्व स्रोत, और रिवॉर्ड्स जो लागत केंद्र नहीं बल्कि विकास इंजन के रूप में काम करते हैं।',
+    business_rev_eyebrow: 'राजस्व स्रोत', business_rev_title: 'WasteLoop कैसे कमाता है',
+    business_rev1_t: 'ट्रांज़ैक्शन कमीशन', business_rev1_d: 'हर बार कचरा किसी प्रोसेसर से मिलाने पर शुल्क।',
+    business_rev2_t: 'B2B सब्सक्रिप्शन', business_rev2_d: 'अपार्टमेंट, कॉलेज, होटल और कंपनियां सॉफ़्टवेयर के लिए भुगतान करती हैं।',
+    business_rev3_t: 'ब्रांड प्रमोशन', business_rev3_d: 'प्रायोजित रिवॉर्ड्स, चैलेंज, और स्टोर प्लेसमेंट।',
+    business_rev4_t: 'एनालिटिक्स', business_rev4_d: 'बड़े संगठनों के लिए रिपोर्टिंग और इनसाइट्स।',
+    business_rev5_t: 'कलेक्शन पार्टनरशिप', business_rev5_d: 'कलेक्शन प्रोवाइडर्स के साथ राजस्व साझाकरण।',
+    business_fly_eyebrow: 'बिज़नेस फ़्लाईव्हील', business_fly_title: 'रिवॉर्ड्स एक खर्च नहीं — यह इंजन है',
+    business_fw1: 'अधिक उपयोगकर्ता', business_fw2: 'अधिक कचरा एकत्रित', business_fw3: 'अधिक मूल्यवान आपूर्ति',
+    business_fw4: 'अधिक प्रोसेसर ट्रांज़ैक्शन', business_fw5: 'अधिक राजस्व', business_fw6: 'अधिक ब्रांड पार्टनरशिप',
+    business_fw7: 'बेहतर रिवॉर्ड्स', business_fw8: 'अधिक उपयोगकर्ता प्रेरणा',
+    business_loop_note: '↻ हर पूरा चक्र अगले को खिलाता है — अधिक उपयोगकर्ता फिर अधिक उपयोगकर्ताओं तक ले जाते हैं।',
+    business_pullquote: '"WasteLoop एक AI-संचालित सर्कुलर-इकॉनमी प्लेटफ़ॉर्म है जो लोगों के लिए कचरा निपटान को आसान बनाता है, व्यवसायों और किसानों के लिए कचरे को मूल्य में बदलता है, और भाग लेने के लिए समुदायों को पुरस्कृत करता है।"',
+
+    common_voice_captured: 'आवाज़ कैप्चर हुई',
+    common_mic_unavailable: 'यहां लाइव माइक उपलब्ध नहीं है — एक नमूना डाला जा रहा है',
+    common_mic_error: 'माइक एक्सेस उपलब्ध नहीं — एक नमूना डाला जा रहा है',
+    common_listening: '● सुन रहा है…', common_listening_stop: '● सुन रहा है… (रोकने के लिए टैप करें)',
+
+    celebrate_cheer1: 'शानदार काम!', celebrate_cheer2: 'हर योगदान मायने रखता है!', celebrate_cheer3: 'आप बढ़िया कर रहे हैं!',
+
+    loop_request: 'अनुरोध', loop_classify: 'वर्गीकरण', loop_route: 'रूट',
+    loop_value: 'मूल्य', loop_reward: 'रिवॉर्ड', loop_redeem: 'रिडीम',
+
+    assistant_pickup_reply: 'ज़रूर। आपका पिकअप अनुरोध बना दिया गया — {category} कचरा, {dest} भेजा गया और {collector} को सौंपा गया। आपने {points} EcoPoints कमाए। ट्रैकिंग आईडी {trackingId}.',
+    assistant_points_reply: 'आपके पास अभी {points} EcoPoints हैं।',
+    assistant_rewards_reply: '{points} अंकों से आप रिवॉर्ड स्टोर से चीज़ें रिडीम कर सकते हैं — अभी क्या उपलब्ध है देखने के लिए वह टैब खोलें।',
+    assistant_track_found: 'आपका आखिरी पिकअप ({label}) {status} है। ट्रैकिंग आईडी {id}.',
+    assistant_track_none: 'आपके पास अभी कोई चल रहा पिकअप नहीं है — क्या एक अनुरोध करना चाहेंगे?',
+    assistant_report_reply: 'मैं इसे WasteWatch के ज़रिए गुमनाम रूप से दर्ज कर सकता हूं — आपकी पहचान प्राप्तकर्ता प्राधिकरण के साथ कभी साझा नहीं होती। फ़ोटो जोड़कर सबमिट करने के लिए WasteWatch टैब खोलें।',
+    assistant_reminder_reply: 'रिमाइंडर सेट कर दिया गया — आपके अगले शेड्यूल्ड पिकअप से पहले मैं आपको सूचित करूंगा।',
+    assistant_question_reply: 'ऑर्गेनिक कचरा कंपोस्टिंग या बायोगैस पार्टनर के पास जाता है। प्लास्टिक, कागज़ और धातु रीसाइक्लिंग पार्टनर के पास जाते हैं। इलेक्ट्रॉनिक्स सिर्फ़ प्रमाणित ई-वेस्ट प्रोसेसर के पास जाते हैं।',
+    assistant_fallback_reply: 'मैं पिकअप का अनुरोध करने, EcoPoints जांचने, रिवॉर्ड्स जांचने, कलेक्शन ट्रैक करने, असुरक्षित कचरे की रिपोर्ट करने, या रिमाइंडर सेट करने में मदद कर सकता हूं — आप क्या करना चाहेंगे?',
+  },
+};
+
+let currentLang = 'en';
+
+function t(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
+}
+
+// Fill in every {placeholder} in a translated string with values from a map.
+function tFormat(key, values) {
+  let s = t(key);
+  Object.keys(values || {}).forEach(k => { s = s.replace(`{${k}}`, values[k]); });
+  return s;
+}
+
+function applyStaticTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-placeholder')); });
+  document.documentElement.lang = currentLang;
+}
+// Real browser speech recognition for the mic buttons, with a safe fallback
+// for browsers that don't support the Web Speech API.
+const voiceSamples = [
+  "என்னிடம் 3 கிலோ பேப்பர் இருக்கு, pickup வேண்டும்.",
+  "मेरे पास 2 किलो प्लास्टिक की बोतलें हैं, pickup चाहिए।",
+  "I have an old mixer grinder and some cables for e-waste pickup.",
+];
+
+function getLangCode() {
+  const v = document.getElementById('langSelect').value;
+  return v === 'ta' ? 'ta-IN' : v === 'hi' ? 'hi-IN' : 'en-IN';
+}
+
+let activeRecognition = null;
+
+/**
+ * Starts (or stops, on a second click) voice capture on the given button.
+ * handlers.onUpdate(text)  — called repeatedly with the live/interim transcript.
+ * handlers.onFinal(text)   — called once with the final transcript, or a
+ *                            sample phrase if live recognition isn't available.
+ */
+function startVoiceCapture(btn, defaultLabel, fallbackSamples, handlers) {
+  if (activeRecognition) {
+    activeRecognition.stop();
+    activeRecognition = null;
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const runFallback = () => {
+    btn.classList.add('listening');
+    btn.textContent = t('common_listening');
+    setTimeout(() => {
+      btn.classList.remove('listening');
+      btn.textContent = defaultLabel;
+      toast(t('common_mic_unavailable'));
+      handlers.onFinal(fallbackSamples[Math.floor(Math.random() * fallbackSamples.length)]);
+    }, 1000);
+  };
+
+  if (!SR) { runFallback(); return; }
+
+  let handled = false;
+  let finalTranscript = '';
+  const recog = new SR();
+  recog.lang = getLangCode();
+  recog.interimResults = true;
+  recog.maxAlternatives = 1;
+
+  recog.onstart = () => {
+    btn.classList.add('listening');
+    btn.textContent = t('common_listening_stop');
+  };
+  recog.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const tr = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalTranscript += tr + ' ';
+      else interim += tr;
+    }
+    if (handlers.onUpdate) handlers.onUpdate((finalTranscript + interim).trim());
+  };
+  recog.onerror = () => {
+    if (handled) return;
+    handled = true;
+    activeRecognition = null;
+    btn.classList.remove('listening');
+    btn.textContent = defaultLabel;
+    toast(t('common_mic_error'));
+    handlers.onFinal(fallbackSamples[Math.floor(Math.random() * fallbackSamples.length)]);
+  };
+  recog.onend = () => {
+    btn.classList.remove('listening');
+    btn.textContent = defaultLabel;
+    activeRecognition = null;
+    if (handled) return;
+    handled = true;
+    if (handlers.onFinal) handlers.onFinal(finalTranscript.trim());
+  };
+
+  try {
+    activeRecognition = recog;
+    recog.start();
+  } catch (err) {
+    activeRecognition = null;
+    runFallback();
+  }
+}
+// ---------------------------------------------------------------------------
+// Local demo state (in-memory — resets on page refresh, no backend needed)
+// ---------------------------------------------------------------------------
+const state = { points: 0, pickups: 0, reports: 0, history: [] };
+
+const rewardsCatalog = [
+  { id: 'notebook', icon: '📓', name: 'Recycled Notebook Set', brand: 'XYZ Stationery', cost: 180 },
+  { id: 'tote', icon: '🎒', name: 'Canvas Tote Bag', brand: 'EarthPack', cost: 220 },
+  { id: 'pen', icon: '🖊️', name: 'Bamboo Pen Pack', brand: 'XYZ Stationery', cost: 90 },
+  { id: 'grocery', icon: '🛒', name: '₹200 Grocery Voucher', brand: 'FreshMart', cost: 600 },
+  { id: 'storage', icon: '🧺', name: 'Reusable Storage Set', brand: 'HomeEase', cost: 340 },
+  { id: 'earphones', icon: '🎧', name: 'Wired Earphones', brand: 'SoundCore', cost: 750 },
+  { id: 'cable', icon: '🔌', name: 'USB-C Cable', brand: 'CircuitBox', cost: 260 },
+  { id: 'powerbank', icon: '🔋', name: 'Power Bank 5000mAh', brand: 'CircuitBox', cost: 980 },
+  { id: 'bottle', icon: '🥤', name: 'Steel Water Bottle', brand: 'EarthPack', cost: 310 },
+];
+
+const categoryRules = [
+  { test: /organic|food|kitchen|vegetable|fruit|garden|leaves/i, label: 'Organic', rate: 5, dest: 'GreenCycle Composting Unit, 2.1 km away', tag: 'tag-organic', collector: 'Ravi Kumar — Organic Collection Team' },
+  { test: /e-waste|electronic|mixer|cable|charger|phone|battery|grinder/i, label: 'E-waste', rate: 22, dest: 'CertiRecycle E-Waste Facility, 4.6 km away', tag: 'tag-ewaste', collector: 'Priya Sharma — CertiRecycle Response Team' },
+  { test: /metal|steel|iron|aluminium|aluminum/i, label: 'Metal', rate: 15, dest: 'Metro Metal Recovery, 3.3 km away', tag: 'tag-recycle', collector: 'Suresh Iyer — Metro Metal Crew' },
+  { test: /plastic|bottle|packet|pet\b/i, label: 'Plastic', rate: 10, dest: 'ReMat Plastics Recycler, 1.8 km away', tag: 'tag-recycle', collector: 'Anitha Raj — ReMat Collection Team' },
+  { test: /cardboard|carton|box/i, label: 'Cardboard', rate: 8, dest: 'PaperLoop Recyclers, 2.9 km away', tag: 'tag-recycle', collector: 'Karthik M — PaperLoop Pickup Crew' },
+  { test: /paper|newspaper|book|பேப்பர்/i, label: 'Paper', rate: 6, dest: 'PaperLoop Recyclers, 2.9 km away', tag: 'tag-recycle', collector: 'Karthik M — PaperLoop Pickup Crew' },
+];
+function classify(desc) {
+  for (const rule of categoryRules) if (rule.test.test(desc)) return rule;
+  return { label: 'Mixed / General', rate: 4, dest: 'Community Sorting Centre, 1.4 km away', tag: 'tag-recycle', collector: 'Community Sorting Crew' };
+}
+
+const rateIcons = { 'Organic': '🌾', 'E-waste': '🔌', 'Metal': '🔩', 'Plastic': '🧴', 'Cardboard': '📦', 'Paper': '📄', 'Mixed / General': '♻️' };
+function renderRates() {
+  const el = document.getElementById('rateGrid');
+  if (!el) return;
+  const uniqueByLabel = [...new Map(categoryRules.map(r => [r.label, r])).values()];
+  uniqueByLabel.push({ label: 'Mixed / General', rate: 4 });
+  el.innerHTML = uniqueByLabel.map(r => `
+    <div class="market-card">
+      <span class="ic">${rateIcons[r.label] || '♻️'}</span>
+      <h3>${r.label}</h3>
+      <p class="mono" style="font-weight:600; color:var(--marigold-deep);">${r.rate} ${t('pickup_rate_unit')}</p>
+    </div>`).join('');
+}
+function qtyMultiplier(v) {
+  if (v.includes('Less') || v.includes('குறைவு') || v.includes('कम')) return 0.7;
+  if (/5–15|5-15/.test(v)) return 8;
+  if (v.includes('15+')) return 18;
+  return 3;
+}
+function makeId(prefix) { return prefix + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(); }
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------------------------------------------------------------------------
+// Tabs
+// ---------------------------------------------------------------------------
+function goTab(name) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  if (name === 'dash') renderDash();
+  if (name === 'rewards') renderRewards();
+}
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-tab]');
+  if (btn) goTab(btn.dataset.tab);
+});
+
+// ---------------------------------------------------------------------------
+// Toast
+// ---------------------------------------------------------------------------
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function syncPoints() {
+  document.getElementById('navPoints').textContent = state.points;
+  const rp = document.getElementById('rewardsPoints');
+  if (rp) rp.textContent = state.points;
+  renderTiers(state.points);
+}
+
+// ---------------------------------------------------------------------------
+// Celebration popup — confetti + a cheering badge whenever EcoPoints are earned
+// ---------------------------------------------------------------------------
+const confettiColors = ['#E7A233', '#3D6B4A', '#8B5A2B', '#2A6B85', '#C1443A', '#5C8A68'];
+function celebrate(points) {
+  const overlay = document.getElementById('celebrateOverlay');
+  if (!overlay) return;
+  overlay.innerHTML = '';
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduceMotion) {
+    for (let i = 0; i < 44; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      const w = 6 + Math.random() * 6, h = 10 + Math.random() * 8;
+      piece.style.width = w + 'px';
+      piece.style.height = h + 'px';
+      piece.style.animationDuration = (1.5 + Math.random() * 1.3) + 's';
+      piece.style.animationDelay = (Math.random() * 0.3) + 's';
+      overlay.appendChild(piece);
+    }
+  }
+
+  const cheerKeys = ['celebrate_cheer1', 'celebrate_cheer2', 'celebrate_cheer3'];
+  const cheer = t(cheerKeys[Math.floor(Math.random() * cheerKeys.length)]);
+  const badge = document.createElement('div');
+  badge.className = 'celebrate-badge';
+  badge.innerHTML = `<div class="pts">+${points} ${t('nav_pts')}</div><div class="cheer">${cheer}</div>`;
+  overlay.appendChild(badge);
+
+  clearTimeout(overlay._clearTimer);
+  overlay._clearTimer = setTimeout(() => { overlay.innerHTML = ''; }, 2500);
+}
+
+// ---------------------------------------------------------------------------
+// Hero loop diagram + business flywheel
+// ---------------------------------------------------------------------------
+const loopStageKeys = ['loop_request', 'loop_classify', 'loop_route', 'loop_value', 'loop_reward', 'loop_redeem'];
+function drawLoop() {
+  const g = document.getElementById('loopNodes');
+  g.innerHTML = '';
+  const r = 118, cx = 160, cy = 160;
+  loopStageKeys.forEach((key, i) => {
+    const angle = (i / loopStageKeys.length) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + r * Math.cos(angle), y = cy + r * Math.sin(angle);
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.innerHTML = `<circle cx="${x}" cy="${y}" r="4.5" fill="#E7A233"/><text x="${x}" y="${y + (Math.sin(angle) > 0 ? 20 : -12)}" text-anchor="middle">${t(key)}</text>`;
+    g.appendChild(node);
+  });
+}
+function drawFlywheel() {
+  const el = document.getElementById('flywheel');
+  const keys = ['business_fw1', 'business_fw2', 'business_fw3', 'business_fw4', 'business_fw5', 'business_fw6', 'business_fw7', 'business_fw8'];
+  el.innerHTML = keys.map((k, i) => `<span class="fw-step">${t(k)}</span>` + (i < keys.length - 1 ? '<span class="fw-arrow">→</span>' : '')).join('');
+}
+
+// ---------------------------------------------------------------------------
+// Pickup
+// ---------------------------------------------------------------------------
+function simulateVoice() {
+  const btn = document.getElementById('micBtn');
+  const box = document.getElementById('wasteDesc');
+  const existing = box.value.trim();
+  startVoiceCapture(btn, t('pickup_mic'), voiceSamples, {
+    onUpdate: (text) => { box.value = existing ? existing + ' ' + text : text; },
+    onFinal: (text) => { if (text) { box.value = existing ? existing + ' ' + text : text; toast(t('common_voice_captured')); } },
+  });
+}
+
+let lastPickupBatchIds = [];
+
+// Splits a free-text description into separate waste mentions, so
+// "3kg paper, some plastic bottles and an old mixer" becomes three items
+// instead of being classified as a single category.
+function splitWasteItems(desc) {
+  const segments = desc.split(/,|;|\n|\band\b|&|\bமற்றும்\b|\bஉம்\b|\bऔर\b/i)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+  return segments.length > 0 ? segments : [desc];
+}
+
+// Classifies every segment, then de-duplicates by category so "plastic bottles
+// and plastic bags" collapses into one Plastic pickup instead of two.
+function classifyMultiple(desc) {
+  const segments = splitWasteItems(desc);
+  const seen = new Map();
+  segments.forEach(seg => {
+    const rule = classify(seg);
+    if (!seen.has(rule.label)) seen.set(rule.label, rule);
+  });
+  return [...seen.values()];
+}
+
+function submitPickup() {
+  const desc = document.getElementById('wasteDesc').value.trim();
+  if (!desc) { toast(t('pickup_describe_first')); return; }
+  const address = document.getElementById('address').value.trim();
+  if (!address) { toast(t('pickup_address_required')); return; }
+  const quantity = document.getElementById('qty').value;
+  const location = document.getElementById('loc').value;
+
+  const panel = document.getElementById('resultPanel');
+  panel.classList.remove('idle');
+  panel.innerHTML = `<div class="thinking"><div class="spinner"></div><p>${t('pickup_think1')}</p></div>`;
+  const msgKeys = ['pickup_think1', 'pickup_think2', 'pickup_think3'];
+  let i = 0;
+  const iv = setInterval(() => { i++; if (i < msgKeys.length) panel.querySelector('p').textContent = t(msgKeys[i]); }, 550);
+
+  setTimeout(() => {
+    clearInterval(iv);
+    const rules = classifyMultiple(desc);
+    const batchIds = [];
+
+    const cardsHtml = rules.map(rule => {
+      const points = Math.round(rule.rate * qtyMultiplier(quantity));
+      const trackingId = makeId('WL');
+      batchIds.push(trackingId);
+      state.pickups += 1;
+      // Points are NOT credited yet — they're held pending until the collector confirms.
+      state.history.unshift({ type: 'Pickup', label: `${rule.label} · ${quantity}`, points: '', pendingPoints: points, id: trackingId, statusKey: 'pickup_status_scheduled', collector: rule.collector });
+
+      return `<div class="result-card" data-pickup-card="${trackingId}" style="${rules.length > 1 ? 'padding-bottom:20px; margin-bottom:18px; border-bottom:1px dashed var(--line);' : ''}">
+        <div class="result-top"><div><span class="tag ${rule.tag}" style="margin-bottom:8px;">${rule.label}</span><div class="result-cat">${rule.label} ${t('pickup_confirmed')}</div></div><div class="points-badge" id="pickupPointsBadge-${trackingId}" style="background:var(--paper-dim); color:var(--ink); border:1px solid var(--line);">${t('pickup_points_pending')}</div></div>
+        <div class="result-row"><span>${t('pickup_row_qty')}</span><span>${quantity}</span></div>
+        <div class="result-row"><span>${t('pickup_row_loc')}</span><span>${location}</span></div>
+        <div class="result-row"><span>${t('pickup_row_address')}</span><span style="text-align:right; max-width:60%;">${escapeHtml(address)}</span></div>
+        <div class="result-row"><span>${t('pickup_row_routed')}</span><span>${rule.dest}</span></div>
+        <div class="result-row"><span>${t('pickup_row_collector')}</span><span>${rule.collector}</span></div>
+        <div class="result-row"><span>${t('pickup_row_status')}</span><span id="pickupStatusVal-${trackingId}">${t('pickup_status_scheduled')}</span></div>
+        <div class="track-id">${t('pickup_tracking')}: ${trackingId}</div>
+        <button class="btn btn-dark btn-sm" id="pickupConfirmBtn-${trackingId}" style="margin-top:14px;" onclick="confirmCollectorPickup('${trackingId}')">${tFormat('pickup_collector_confirm_btn', { collector: rule.collector })}</button>
+        <p class="hint" style="margin-top:8px;">${t('pickup_collector_confirm_note')}</p>
+      </div>`;
+    }).join('');
+
+    lastPickupBatchIds = batchIds;
+    const headerHtml = rules.length > 1
+      ? `<div class="hint mono" style="margin-bottom:16px; text-transform:uppercase; letter-spacing:0.04em;">${tFormat('pickup_multi_summary', { count: rules.length })}</div>`
+      : '';
+    const confirmAllHtml = rules.length > 1
+      ? `<button class="btn btn-primary btn-sm" style="width:100%; justify-content:center; margin-top:4px;" onclick="confirmAllPickups()">${t('pickup_confirm_all_btn')}</button>`
+      : '';
+
+    panel.innerHTML = headerHtml + cardsHtml + confirmAllHtml;
+    toast(t('pickup_requested_toast'));
+  }, 1750);
+}
+
+function confirmAllPickups() {
+  lastPickupBatchIds.forEach(id => confirmCollectorPickup(id));
+}
+
+function confirmCollectorPickup(trackingId) {
+  const record = state.history.find(h => h.id === trackingId && h.type === 'Pickup');
+  if (!record || record.statusKey === 'pickup_status_collected') return;
+
+  const points = record.pendingPoints || 0;
+  state.points += points;
+  record.points = `+${points}`;
+  record.pendingPoints = 0;
+  record.statusKey = 'pickup_status_collected';
+
+  const statusEl = document.getElementById(`pickupStatusVal-${trackingId}`);
+  if (statusEl) statusEl.textContent = t(record.statusKey);
+  const badgeEl = document.getElementById(`pickupPointsBadge-${trackingId}`);
+  if (badgeEl) {
+    badgeEl.textContent = `+${points} pts`;
+    badgeEl.style.background = 'var(--marigold)';
+    badgeEl.style.color = 'var(--ink)';
+    badgeEl.style.border = 'none';
+  }
+  const btn = document.getElementById(`pickupConfirmBtn-${trackingId}`);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; }
+
+  syncPoints();
+  celebrate(points);
+  toast(tFormat('pickup_confirmed_toast', { points, collector: record.collector }));
+  if (document.querySelector('.tabs button.active')?.dataset.tab === 'dash') renderDash();
+}
+
+
+// ---------------------------------------------------------------------------
+// Voice assistant chat
+// ---------------------------------------------------------------------------
+function pushMsg(text, who) {
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function sendChatFromInput() {
+  const inp = document.getElementById('chatInput');
+  const v = inp.value.trim();
+  if (!v) return;
+  inp.value = '';
+  sendChat(v);
+}
+function sendChat(text) {
+  pushMsg(text, 'user');
+  setTimeout(() => { pushMsg(replyFor(text), 'bot'); }, 500);
+}
+function replyFor(text) {
+  const low = text.toLowerCase();
+  if (/pickup|கிலோ|किलो/.test(text) || /pickup/.test(low)) {
+    const rule = classify(text);
+    const points = Math.round(rule.rate * 3);
+    const trackingId = makeId('WL');
+    state.points += points; state.pickups += 1;
+    state.history.unshift({ type: 'Pickup', label: `${rule.label} · via voice assistant`, points: `+${points}`, id: trackingId, statusKey: 'pickup_status_scheduled', collector: rule.collector });
+    syncPoints();
+    celebrate(points);
+    return tFormat('assistant_pickup_reply', { category: rule.label.toLowerCase(), dest: rule.dest, collector: rule.collector, points, trackingId });
+  }
+  if (/point|balance|ecopoint/.test(low)) return tFormat('assistant_points_reply', { points: state.points });
+  if (/reward/.test(low)) return tFormat('assistant_rewards_reply', { points: state.points });
+  if (/track|status|collection/.test(low)) {
+    const last = state.history.find(h => h.type === 'Pickup');
+    return last ? tFormat('assistant_track_found', { label: last.label, status: t(last.statusKey), id: last.id }) : t('assistant_track_none');
+  }
+  if (/unsafe|illegal|dump|report/.test(low)) return t('assistant_report_reply');
+  if (/remind/.test(low)) return t('assistant_reminder_reply');
+  if (/organic|plastic|paper|metal|e-waste|electronic|where/.test(low)) return t('assistant_question_reply');
+  return t('assistant_fallback_reply');
+}
+function voiceMicToChat() {
+  const btn = document.getElementById('voiceMicBtn');
+  const input = document.getElementById('chatInput');
+  startVoiceCapture(btn, '🎙️', voiceSamples, {
+    onUpdate: (text) => { input.value = text; },
+    onFinal: (text) => { if (text) { input.value = text; sendChatFromInput(); } },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Rewards
+// ---------------------------------------------------------------------------
+function renderRewards() {
+  const grid = document.getElementById('rewardGrid');
+  grid.innerHTML = rewardsCatalog.map(r => `
+    <div class="reward-card">
+      <div class="reward-icon">${r.icon}</div>
+      <h3>${r.name}</h3>
+      <span class="brand-tag">${t('rewards_sponsored_by')} ${r.brand}</span>
+      <div class="reward-cost mono">${r.cost} ${t('rewards_pts')}</div>
+      <button class="redeem-btn" ${state.points < r.cost ? 'disabled' : ''} onclick="redeem('${r.id}')">${t('rewards_redeem')}</button>
+    </div>`).join('');
+  syncPoints();
+}
+function redeem(rewardId) {
+  const r = rewardsCatalog.find(x => x.id === rewardId);
+  if (!r || state.points < r.cost) return;
+  state.points -= r.cost;
+  state.history.unshift({ type: 'Redeemed', label: r.name, points: `−${r.cost}` });
+  syncPoints(); renderRewards();
+  toast(tFormat('rewards_redeemed_toast', { name: r.name }));
+}
+
+const tierDefs = [
+  { key: 'rewards_tier1', descKey: 'rewards_tier1_d', min: 0, icon: '🥉' },
+  { key: 'rewards_tier2', descKey: 'rewards_tier2_d', min: 600, icon: '🥈' },
+  { key: 'rewards_tier3', descKey: 'rewards_tier3_d', min: 1500, icon: '🏆' },
+];
+function levelKeyFor(points) {
+  if (points >= 1500) return 'rewards_tier3';
+  if (points >= 600) return 'rewards_tier2';
+  return 'rewards_tier1';
+}
+function renderTiers(points) {
+  const el = document.getElementById('tierGrid');
+  if (!el) return;
+  const current = levelKeyFor(points || 0);
+  el.innerHTML = tierDefs.map(tier => `<div class="tier-card ${tier.key === current ? 'active' : ''}"><span class="ic">${tier.icon}</span><h3>${t(tier.key)}</h3><p>${t(tier.descKey)}</p></div>`).join('');
+  const dashLevelEl = document.getElementById('dashLevel');
+  if (dashLevelEl) dashLevelEl.textContent = t(current);
+}
+
+// ---------------------------------------------------------------------------
+// WasteWatch
+// ---------------------------------------------------------------------------
+function submitReport() {
+  const desc = document.getElementById('watchDesc').value.trim();
+  if (!desc) { toast(t('watch_describe_first')); return; }
+  const panel = document.getElementById('watchPanel');
+  panel.classList.remove('idle');
+  const reportId = makeId('WW');
+  const bonusPoints = 50;
+  state.reports += 1;
+  state.points += bonusPoints;
+  state.history.unshift({ type: 'WasteWatch', label: desc.slice(0, 50), points: `+${bonusPoints}`, id: reportId, statusKey: 'watch_s2_t' });
+  panel.innerHTML = `<div class="result-card">
+      <div class="result-top">
+        <div class="report-id-box" style="margin-bottom:0; flex:1;"><div class="lbl">${t('watch_id_label')}</div><div class="id">${reportId}</div></div>
+        <div class="points-badge">+${bonusPoints} pts</div>
+      </div>
+      <ul class="status-track" style="margin-top:20px;">
+        <li class="done"><div class="t">${t('watch_s1_t')}</div><div class="d">${t('watch_s1_d')}</div></li>
+        <li class="current"><div class="t">${t('watch_s2_t')}</div><div class="d">${t('watch_s2_d')}</div></li>
+        <li><div class="t">${t('watch_s3_t')}</div><div class="d">${t('watch_s3_d')}</div></li>
+        <li><div class="t">${t('watch_s4_t')}</div><div class="d">${t('watch_s4_d')}</div></li>
+      </ul>
+      <div class="anon-note">${t('watch_anon_note')}</div></div>`;
+  syncPoints();
+  celebrate(bonusPoints);
+  toast(tFormat('watch_submitted_toast', { points: bonusPoints }));
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------------
+function renderDash() {
+  document.getElementById('dashPoints').textContent = state.points;
+  document.getElementById('dashPickups').textContent = state.pickups;
+  document.getElementById('dashReports').textContent = state.reports;
+  document.getElementById('lbYou').textContent = state.points + ' ' + t('dash_pts');
+  const list = document.getElementById('histList');
+  list.innerHTML = state.history.length === 0
+    ? `<div class="hist-empty">${t('dash_empty_hist')}</div>`
+    : state.history.slice(0, 8).map(h => `<div class="hist-row"><span>${h.type} · ${h.label}</span><span class="mono">${h.points || ''}</span></div>`).join('');
+  syncPoints();
+}
+
+// ---------------------------------------------------------------------------
+// Language switching — re-renders EVERY tab's content, not just the hero
+// ---------------------------------------------------------------------------
+function applyLanguage(lang) {
+  currentLang = lang;
+  applyStaticTranslations();
+  drawLoop();
+  drawFlywheel();
+  renderTiers(state.points);
+  renderRewards();
+  renderRates();
+  renderDash();
+}
+document.getElementById('langSelect').addEventListener('change', e => applyLanguage(e.target.value));
+
+// ---------------------------------------------------------------------------
+// Initial load
+// ---------------------------------------------------------------------------
+drawLoop();
+drawFlywheel();
+renderTiers(0);
+renderRates();
+pushMsg(t('voice_greeting'), 'bot');
+</script>
+</body>
+</html>
